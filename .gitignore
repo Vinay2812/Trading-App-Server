@@ -1,0 +1,19 @@
+# Logs
+
+node_modules
+client/node_modules
+data/.~lock.Vinay.xlsx#
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+.env
+*.log
+debug/
+/.vscode
+testing/
+client/dist/
+
+/dist/
