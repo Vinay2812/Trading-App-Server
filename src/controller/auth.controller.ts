@@ -4,9 +4,9 @@ import bcrypt from "bcrypt";
 import logger from "../utils/logger";
 import {
   getOnlineUsersByQuery,
-  insertIntoOnlineUser,
-  insertIntoUserBankDetails,
-  insertIntoUserContactDetails,
+  createOnlineUserByQuery,
+  createUserBankDetailsByQuery,
+  createUserContactDetailsByQuery,
   updateOnlineUserByQuery,
 } from "../models/index";
 import createHttpError from "http-errors";
@@ -18,13 +18,22 @@ import {
 } from "../utils/cache";
 import { Op } from "sequelize";
 import { Request, Response, NextFunction } from "express";
+import { RegisterRequest } from "../types/auth.request";
+import { UserOnlineDetailsInterface } from "../models/users/users.model";
+
+const sendOtpByEmail = async (email: string) => {
+  const otp = getRandomOtp();
+  const cacheKey = getOtpCacheKey(email);
+  setCache(cacheKey, otp, 5 * 60);
+  await sendEmail(email, otp);
+};
 
 export async function register(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const { userData, bankData, contactData } = req.body;
+  const { userData, bankData, contactData }: RegisterRequest = req.body;
   try {
     let check_user_query = {
       attributes: ["userId"],
@@ -40,11 +49,16 @@ export async function register(
       );
     }
     const new_user_id = getRandomId();
-    const insertUserData = {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+    const insertUserData: UserOnlineDetailsInterface = {
       ...userData,
+      authorized: "0",
       userId: new_user_id,
+      password: hashedPassword,
     };
-    const userDetails = await insertIntoOnlineUser(insertUserData);
+
+    const userDetails = await createOnlineUserByQuery(insertUserData);
     next({
       data: {
         userData: userDetails,
@@ -57,19 +71,16 @@ export async function register(
       // insert all bank details
       ...bankData.map((data: any) => {
         const insertBankData = { ...data, userId };
-        return insertIntoUserBankDetails(insertBankData);
+        return createUserBankDetailsByQuery(insertBankData);
       }),
       // insert all contact details
       ...contactData.map((data: any) => {
         const insertContactData = { ...data, userId };
-        return insertIntoUserContactDetails(insertContactData);
+        return createUserContactDetailsByQuery(insertContactData);
       }),
     ]);
 
-    const otp = getRandomOtp();
-    const cacheKey = getOtpCacheKey(userId);
-    setCache(cacheKey, otp, 5 * 60);
-    await sendEmail(email, otp);
+    sendOtpByEmail(email);
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);
@@ -85,11 +96,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       },
     };
 
-    let userData = await getOnlineUsersByQuery(getUserDataQuery);
-    if (!userData?.length) {
+    const userDataArr = await getOnlineUsersByQuery(getUserDataQuery);
+    if (!userDataArr?.length) {
       throw createHttpError.NotFound("Invalid mobile or company name");
     }
-    userData = userData[0];
+    let userData = userDataArr[0];
     if (userData.password) {
       const passwordMatched = await bcrypt.compare(password, userData.password);
       if (!passwordMatched) {
@@ -137,10 +148,7 @@ export async function sendOTP(req: Request, res: Response, next: NextFunction) {
       email_before.substring(0, email_before.length / 2) +
       "*******@" +
       email.split("@")[1];
-    const otp = getRandomOtp();
-    await sendEmail(email, otp);
-    const cacheKey = getOtpCacheKey(userId);
-    setCache(cacheKey, otp, 5 * 60);
+    await sendOtpByEmail(email);
     next({
       message: `Otp sent successfully to ${email_hidden}.\nOtp will be valid for 5 minutes`,
     });

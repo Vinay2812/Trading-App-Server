@@ -1,11 +1,54 @@
 import mssql from "../../connections/mssql.connection";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
 const ONLINE_USER_DETAILS = "onlineUserDetails";
 const USER_BANK_DETAILS = "userBankDetails";
 const USER_CONTACT_DETAILS = "userContactDetails";
 
-export const UserOnlineDetails = mssql.define(ONLINE_USER_DETAILS, {
+export interface UserOnlineDetailsInterface {
+  userId: string;
+  company_name: string;
+  email: string;
+  password: string;
+  address: string;
+  state: string;
+  district: string;
+  pincode: number;
+  mobile: string;
+  whatsapp?: string;
+  gst?: string;
+  pan: string;
+  fssai?: string;
+  tan?: string;
+  constitution_of_firm: string;
+  authorized?: string;
+  accoid?: number;
+}
+
+export interface UserBankDetailsInterface {
+  _id?: string;
+  userId: string;
+  bank_name: string;
+  account_name: string;
+  account_number: number;
+  ifsc: string;
+  branch: string;
+  account_type: string;
+}
+
+export interface UserContactDetailsInterface {
+  _id?: string;
+  userId: string;
+  full_name: string;
+  designation: string;
+  mobile: string;
+  whatsapp?: string;
+  email: string;
+}
+
+export const UserOnlineDetails = mssql.define<
+  Model<UserOnlineDetailsInterface>
+>(ONLINE_USER_DETAILS, {
   userId: {
     type: DataTypes.STRING(100),
     allowNull: false,
@@ -21,7 +64,7 @@ export const UserOnlineDetails = mssql.define(ONLINE_USER_DETAILS, {
   },
   password: {
     type: DataTypes.STRING(100),
-    allowNull: true,
+    allowNull: false,
   },
   address: {
     type: DataTypes.STRING(250),
@@ -45,11 +88,9 @@ export const UserOnlineDetails = mssql.define(ONLINE_USER_DETAILS, {
   },
   whatsapp: {
     type: DataTypes.STRING(10),
-    allowNull: true,
   },
   gst: {
     type: DataTypes.STRING(15),
-    allowNull: true,
   },
   pan: {
     type: DataTypes.STRING(10),
@@ -57,11 +98,9 @@ export const UserOnlineDetails = mssql.define(ONLINE_USER_DETAILS, {
   },
   fssai: {
     type: DataTypes.STRING(15),
-    allowNull: true,
   },
   tan: {
     type: DataTypes.STRING(10),
-    allowNull: true,
   },
   constitution_of_firm: {
     type: DataTypes.STRING(50),
@@ -75,7 +114,9 @@ export const UserOnlineDetails = mssql.define(ONLINE_USER_DETAILS, {
   },
 });
 
-export const UserBankDetails = mssql.define(USER_BANK_DETAILS, {
+export const UserBankDetails = mssql.define<
+  Model<UserBankDetailsInterface>
+>(USER_BANK_DETAILS, {
   _id: {
     type: DataTypes.UUID,
     primaryKey: true,
@@ -93,7 +134,9 @@ export const UserBankDetails = mssql.define(USER_BANK_DETAILS, {
   account_type: DataTypes.STRING(50),
 });
 
-export const UserContactDetails = mssql.define(USER_CONTACT_DETAILS, {
+export const UserContactDetails = mssql.define<
+  Model<UserContactDetailsInterface>
+>(USER_CONTACT_DETAILS, {
   _id: {
     type: DataTypes.UUID,
     primaryKey: true,

@@ -13,7 +13,6 @@ data/.~lock.Vinay.xlsx#
 *.log
 debug/
 /.vscode
-testing/
 client/dist/
 
 /dist/

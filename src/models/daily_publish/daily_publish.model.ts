@@ -1,9 +1,36 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import mssql from "../../connections/mssql.connection";
 
-const TR_DAILY_PUBLISH = "trdailypublish";
-
-export const DailyPublish = mssql.define(TR_DAILY_PUBLISH, {
+const TR_DAILY_PUBLISH = "trDailyPublish";
+export interface DailyPublishInterface {
+  tender_no?: number;
+  tender_id?: number;
+  tender_date?: Date;
+  publish_date?: Date;
+  lifting_date?: Date;
+  mill_code?: number;
+  mc?: number;
+  item_code?: number;
+  it?: number;
+  payment_to?: number;
+  pt?: number;
+  doac?: number;
+  doid?: number;
+  season?: string;
+  grade?: string;
+  unit?: string;
+  qty?: number;
+  mill_rate?: number;
+  purc_rate?: number;
+  sale_rate?: number;
+  published_qty?: number;
+  selling_type?: string;
+  multiple_of?: number;
+  auto_confirm?: string;
+  status?: string;
+  autoid: number;
+}
+export const DailyPublish = mssql.define<Model<DailyPublishInterface>>(TR_DAILY_PUBLISH, {
   tender_no: DataTypes.INTEGER,
   tender_id: { type: DataTypes.INTEGER, field: "tenderid" },
   tender_date: DataTypes.DATEONLY,

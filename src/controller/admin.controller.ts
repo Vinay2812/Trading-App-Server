@@ -7,10 +7,10 @@ import {
   getOnlineUsersByQuery,
   getUserBankDetailsByQuery,
   getDataFromDailyPublish,
-  insertIntoAccountMaster,
+  createAccountMaster,
   updateAccountMasterByQuery,
   updateOnlineUserByQuery,
-  insertIntoDailyPublish,
+  createDailyPublish,
   getDataFromDailyBalance,
   updateDailyPublishByQuery,
 } from "../models/index";
@@ -97,7 +97,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
         company_code: 1,
       },
     };
-    const { max_ac_code } = (
+    const { max_ac_code }: any = (
       await getDataFromAccountMaster(max_ac_code_query)
     )[0];
     const next_ac_code = max_ac_code + 1;
@@ -174,7 +174,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
       branch1drcr: "D",
       branch2drcr: "D",
       locked: "0",
-      gststatecode: isNaN(state.substring(0, 2)) ? null : state.substring(0, 2),
+      gststatecode: isNaN(parseInt(state.substring(0, 2))) ? null : state.substring(0, 2),
       unregistergst: gst == null ? 0 : 1,
       whatsapp_no: whatsapp,
       limit_by: "N",
@@ -196,7 +196,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
       cityid: "0",
       company_code: "1",
     };
-    const { accoid } = await insertIntoAccountMaster(insertData, {
+    const { accoid } = await createAccountMaster(insertData, {
       returning: true,
       plain: true,
     });
@@ -255,7 +255,7 @@ export async function getTenderBalances(
     const tenderBalances = await getDataFromTenderBalanceView(
       getTenderDetailsQuery
     );
-    let uniqueKeys:string[] = [];
+    let uniqueKeys: number[] = [];
     let uniqueList = [];
     for (let ele of tenderBalances || []) {
       if (!uniqueKeys.includes(ele.tender_id)) {
@@ -343,7 +343,7 @@ export async function postDailyPublish(
       status: "Y",
     };
     // insert into daily publish
-    await insertIntoDailyPublish(insertData);
+    await createDailyPublish(insertData);
     next({ message: "Successfully inserted into daily publish" });
     // tell client to fetch daily publish
     let sent_request = await updatePublishedList();
@@ -364,7 +364,7 @@ export async function getDailyBalance(
       where: { balance: { [Op.gt]: 0 } },
     };
     const dailybalances = await getDataFromDailyBalance(getDailyBalanceQuery);
-    let uniqueKeys: string[] = [];
+    let uniqueKeys: number[] = [];
     let uniqueList: any[] = [];
     for (let ele of dailybalances || []) {
       if (!uniqueKeys.includes(ele.tender_id)) {
@@ -390,7 +390,8 @@ export async function updateSingleTrade(
     const setQuery = { status };
     const query = { where: { tender_id }, returning: true };
 
-    const result: any = (await updateDailyPublishByQuery(setQuery, query)) || [];
+    const result: any =
+      (await updateDailyPublishByQuery(setQuery, query)) || [];
     next({
       message: `${status === "Y" ? "Started" : "Stopped"} trade for tender no ${
         result?.data[0]?.tender_no

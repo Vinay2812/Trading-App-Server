@@ -6,13 +6,16 @@ export async function getDataFromAccountMaster(query: any = { where: {} }) {
   return processQueryOutput.forFindAll(output);
 }
 
-export async function updateAccountMasterByQuery(set: any, query: any = { where: {} }) {
+export async function updateAccountMasterByQuery(
+  set: any,
+  query: any = { where: {} }
+) {
   let [rows, data] = await AccountMaster.update(set, query);
-  data = processQueryOutput.forUpdate(data);
-  return { rows_affected: rows, data };
+  let processedOutput = processQueryOutput.forUpdate(data);
+  return { rows_affected: rows, data: processedOutput };
 }
 
-export async function insertIntoAccountMaster(
+export async function createAccountMaster(
   query: any,
   options: any = { returning: true }
 ) {

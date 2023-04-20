@@ -81,8 +81,8 @@ export async function getOnlineUserCompanies(
       attributes: ["company_name"],
       where: { mobile },
     };
-    let companies = await getOnlineUsersByQuery(getCompaniesQuery);
-    companies = companies.map(({ company_name }: any) => company_name);
+    let queryResponse = await getOnlineUsersByQuery(getCompaniesQuery);
+    let companies = queryResponse.map(({ company_name}) => company_name);
     next({ data: { companies }, message: "Companies fetched successfully" });
   } catch (err) {
     if (!err.status) err.status = 500;

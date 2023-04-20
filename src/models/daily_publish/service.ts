@@ -6,13 +6,16 @@ export async function getDataFromDailyPublish(query: any = { where: {} }) {
   return processQueryOutput.forFindAll(output);
 }
 
-export async function updateDailyPublishByQuery(set: any, query: any = { where: {} }) {
-  let [rows, data] = await DailyPublish.update(set, query);
-  data = processQueryOutput.forUpdate(data);
-  return { rows_affected: rows, data };
+export async function updateDailyPublishByQuery(
+  set: any,
+  query: any = { where: {} }
+) {
+  const [rows, data] = await DailyPublish.update(set, query);
+  const processedOutput = processQueryOutput.forUpdate(data);
+  return { rows_affected: rows, data: processedOutput };
 }
 
-export async function insertIntoDailyPublish(
+export async function createDailyPublish(
   values: any,
   options: any = { returning: true }
 ) {

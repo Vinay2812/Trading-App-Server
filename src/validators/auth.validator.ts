@@ -14,9 +14,10 @@ export const registerReq = Joi.object({
       whatsapp: Joi.string().min(10).max(10).default(null),
       gst: Joi.string().min(15).max(15).default(null),
       pan: Joi.string().required().min(10).max(10),
-      fssai: Joi.string().min(14).max(14).default(null),
-      tan: Joi.string().min(10).max(10).default(null),
+      fssai: Joi.string().default(null),
+      tan: Joi.string().default(null),
       constitution_of_firm: Joi.string().required(),
+      password: Joi.string().required()
     }).required(),
     bankData: Joi.array()
       .items(
@@ -36,8 +37,8 @@ export const registerReq = Joi.object({
         Joi.object({
           full_name: Joi.string().required(),
           designation: Joi.string().required(),
-          mobile: Joi.string().required().min(10).max(10),
-          whatsapp: Joi.string().min(10).max(10),
+          mobile: Joi.string().min(10).max(10),
+          whatsapp: Joi.string().min(10).max(10).allow(null, ""),
           email: Joi.string().required().email(),
         })
       )
@@ -63,6 +64,6 @@ export const loginReq = Joi.object({
   body: Joi.object({
     mobile: Joi.string().required().min(10).max(10),
     company_name: Joi.string().required(),
-    password: Joi.string().required().allow(null),
+    password: Joi.string().required(),
   }).required(),
 }).required();

@@ -5,6 +5,7 @@ import { NextFunction, Response, Request } from "express";
 export const validateRequest =
   (validator: Schema) => (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log(req.body);
       const data: object = {
         query: req.query,
         body: req.body,

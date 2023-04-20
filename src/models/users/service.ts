@@ -3,10 +3,11 @@ import {
   UserBankDetails,
   UserContactDetails,
   UserOnlineDetails,
+  UserOnlineDetailsInterface,
 } from "./users.model";
 
 export async function getOnlineUsersByQuery(query: any = { where: {} }) {
-  let users = await UserOnlineDetails.findAll(query);
+  let users = await UserOnlineDetails.findAll({...query});
   return processQueryOutput.forFindAll(users);
 }
 
@@ -15,13 +16,17 @@ export async function getUserBankDetailsByQuery(query: any = { where: {} }) {
   return processQueryOutput.forFindAll(data);
 }
 
-export async function updateOnlineUserByQuery(set: any, query: any = { where: {} }) {
+export async function updateOnlineUserByQuery(
+  set: any,
+  query: any = { where: {} }
+) {
   let [rows, data] = await UserOnlineDetails.update(set, query);
-  data = processQueryOutput.forUpdate(data);
-  return { rows_affected: rows, data };
+  const simplifiedData: UserOnlineDetailsInterface[] =
+    processQueryOutput.forUpdate<UserOnlineDetailsInterface>(data);
+  return { rows_affected: rows, data: simplifiedData };
 }
 
-export async function insertIntoOnlineUser(
+export async function createOnlineUserByQuery(
   values: any,
   options: object = { returning: true }
 ) {
@@ -29,7 +34,7 @@ export async function insertIntoOnlineUser(
   return processQueryOutput.forInsert(data);
 }
 
-export async function insertIntoUserBankDetails(
+export async function createUserBankDetailsByQuery(
   values: any,
   options: object = { returning: true }
 ) {
@@ -37,7 +42,7 @@ export async function insertIntoUserBankDetails(
   return processQueryOutput.forInsert(data);
 }
 
-export async function insertIntoUserContactDetails(
+export async function createUserContactDetailsByQuery(
   values: any,
   options: object = { returning: true }
 ) {
