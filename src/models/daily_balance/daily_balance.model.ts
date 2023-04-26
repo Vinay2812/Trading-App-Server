@@ -1,15 +1,29 @@
 import { DataTypes, Model } from "sequelize";
 import mssql from "../../connections/mssql.connection";
 
-const QRY_TR_DAILY_BALANCE = "qrtrdailybalance";
+const QRY_TR_DAILY_BALANCE = "qrytrdailybalance";
 
 export interface DailyBalanceInterface {
-  tender_no?: number;
+  tender_no: number;
   tender_id: number;
-  tender_date?: Date;
-  published_qty?: number;
+  tender_date: Date;
+  mill_short_name: string;
+  item_name: string;
+  payment_to_name: string;
+  tender_do_name: string;
+  season: string;
+  grade: string;
+  unit: string;
+  quantity: number;
+  lifting_date: Date;
+  purchase_rate: number;
+  mill_rate: number;
+  sale_rate: number;
+  published_qty: number;
+  sold: number;
+  balance: number;
+  auto_id: number;
   publish_date?: Date;
-  lifting_date?: Date;
   mill_code?: number;
   mc?: number;
   payment_to?: number;
@@ -18,24 +32,10 @@ export interface DailyBalanceInterface {
   pt?: number;
   do_ac?: number;
   do_id?: number;
-  season?: string;
-  grade?: string;
-  unit?: string;
-  quantity?: number;
-  mill_rate?: number;
-  sale_rate?: number;
-  purchase_rate?: number;
   selling_type?: string;
   multiple_of?: number;
   auto_confirm?: string;
   status?: string;
-  auto_id: number;
-  mill_short_name?: string;
-  item_name?: string;
-  payment_to_name?: string;
-  tender_do_name?: string;
-  sold: number;
-  balance?: number;
 }
 
 export const DailyBalance = mssql.define<Model<DailyBalanceInterface>>(

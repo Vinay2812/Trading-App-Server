@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   addUser,
   adminLogin,
-  getTenderBalances,
-  getDailyBalance,
+  getPublishList,
+  getPublishedList,
   getRegistrationListUsers,
   postDailyPublish,
   mapClient,
@@ -48,7 +48,7 @@ router.post(
 router.put("/registration-list/map", validateRequest(mapClientReq), mapClient);
 
 //publish list
-router.get("/publish-list/tenderbalances", getTenderBalances);
+router.get("/publish-list", getPublishList);
 router.post(
   "/publish-list/dailypublish",
   validateRequest(postDailyPublishReq),
@@ -56,7 +56,7 @@ router.post(
 );
 
 // published-list
-router.get("/published-list/dailybalance", getDailyBalance);
+router.get("/published-list", getPublishedList);
 router.patch(
   "/published-list/trade/status",
   validateRequest(updateSingleTradeReq),

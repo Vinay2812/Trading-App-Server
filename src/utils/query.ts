@@ -1,7 +1,7 @@
 import { Model } from "sequelize";
 
-function forFindAll<T>(data: Model<any, any>[]) {
-  return data.map(({ dataValues }: any) => dataValues);
+function forFindAll<T = any>(data: Model<any, any>[]) {
+  return data.map(({ dataValues }: any) => dataValues) as T[];
 }
 
 function forUpdate<T = any>(data: Model<T, T>[]): T[] {

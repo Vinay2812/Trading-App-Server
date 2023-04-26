@@ -203,7 +203,7 @@ export const TenderBalanceView = mssql.define<
   },
   commision_rate: {
     type: DataTypes.DECIMAL(18, 2),
-    field: "Commision_Rate",
+    field: "Commission_Rate",
   },
   delivery_type: {
     type: DataTypes.STRING(10),

@@ -15,17 +15,19 @@ import {
   getUserReq,
   updatePasswordReq,
 } from "../validators/user.validator";
+import { getAllUsersData } from "../controller/admin.controller";
 const router = Router();
 
 // user
 router.get("/:userId", validateRequest(getUserByIdReq), getUserById);
-router.patch("/password", validateRequest(updatePasswordReq), updatePassword);
 router.get("/", validateRequest(getUserReq), getUser);
+router.get("/registered-users/details", getAllUsersData);
 router.get(
   "/companies/:mobile",
   validateRequest(getOnlineUserCompaniesReq),
   getOnlineUserCompanies
 );
+router.patch("/password", validateRequest(updatePasswordReq), updatePassword);
 
 // account_master
 router.get("/account_master/company-names", getAllAccountMasterCompanyName);

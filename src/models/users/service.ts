@@ -1,19 +1,26 @@
 import { processQueryOutput } from "../../utils/query";
 import {
   UserBankDetails,
+  UserBankDetailsInterface,
   UserContactDetails,
+  UserContactDetailsInterface,
   UserOnlineDetails,
   UserOnlineDetailsInterface,
 } from "./users.model";
 
 export async function getOnlineUsersByQuery(query: any = { where: {} }) {
-  let users = await UserOnlineDetails.findAll({...query});
-  return processQueryOutput.forFindAll(users);
+  let users = await UserOnlineDetails.findAll({ ...query });
+  return processQueryOutput.forFindAll<UserOnlineDetailsInterface>(users);
 }
 
 export async function getUserBankDetailsByQuery(query: any = { where: {} }) {
   let data = await UserBankDetails.findAll(query);
-  return processQueryOutput.forFindAll(data);
+  return processQueryOutput.forFindAll<UserBankDetailsInterface>(data);
+}
+
+export async function getUserBankContactByQuery(query: any = { where: {} }) {
+  let data = await UserContactDetails.findAll(query);
+  return processQueryOutput.forFindAll<UserContactDetailsInterface>(data);
 }
 
 export async function updateOnlineUserByQuery(

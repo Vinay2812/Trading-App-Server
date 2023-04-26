@@ -13,6 +13,7 @@ import {
   createDailyPublish,
   getDataFromDailyBalance,
   updateDailyPublishByQuery,
+  getUserBankContactByQuery,
 } from "../models/index";
 import { Op, Sequelize } from "sequelize";
 import {
@@ -21,6 +22,11 @@ import {
   updateUserAuthorization,
 } from "../socket/controller/emit";
 import { NextFunction, Request, RequestHandler, Response } from "express";
+import {
+  UserBankDetailsInterface,
+  UserContactDetailsInterface,
+  UserOnlineDetailsInterface,
+} from "../models/users/users.model";
 
 export async function adminLogin(
   req: Request,
@@ -174,7 +180,9 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
       branch1drcr: "D",
       branch2drcr: "D",
       locked: "0",
-      gststatecode: isNaN(parseInt(state.substring(0, 2))) ? null : state.substring(0, 2),
+      gststatecode: isNaN(parseInt(state.substring(0, 2)))
+        ? null
+        : state.substring(0, 2),
       unregistergst: gst == null ? 0 : 1,
       whatsapp_no: whatsapp,
       limit_by: "N",
@@ -240,7 +248,7 @@ export async function mapClient(
   }
 }
 
-export async function getTenderBalances(
+export async function getPublishList(
   req: Request,
   res: Response,
   next: NextFunction
@@ -354,16 +362,16 @@ export async function postDailyPublish(
   }
 }
 
-export async function getDailyBalance(
+export async function getPublishedList(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const getDailyBalanceQuery = {
+    const getPublishedListQuery = {
       where: { balance: { [Op.gt]: 0 } },
     };
-    const dailybalances = await getDataFromDailyBalance(getDailyBalanceQuery);
+    const dailybalances = await getDataFromDailyBalance(getPublishedListQuery);
     let uniqueKeys: number[] = [];
     let uniqueList: any[] = [];
     for (let ele of dailybalances || []) {
@@ -506,6 +514,83 @@ export async function getAllTradeStatus(
       }
     }
     next({ stop_trading_option });
+  } catch (err) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function getAllUsersData(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const users = await getOnlineUsersByQuery();
+    let userIds: string[] = [];
+
+    for (let user of users) {
+      userIds.push(user.userId);
+    }
+
+    const query = {
+      where: {
+        userId: {
+          [Op.in]: userIds,
+        },
+      },
+    };
+
+    type UserData = {
+      userDetails: UserOnlineDetailsInterface;
+      bankDetails: UserBankDetailsInterface[];
+      contactDetails: UserContactDetailsInterface[];
+    };
+
+    const [bankDetails, contactDetails] = await Promise.all([
+      getUserBankDetailsByQuery(query),
+      getUserBankContactByQuery(query),
+    ]);
+
+    let userDataMap = new Map<string, UserData>();
+
+    for (let user of users) {
+      userDataMap.set(user.userId, {
+        userDetails: user,
+        bankDetails: [],
+        contactDetails: [],
+      });
+    }
+
+    for (let bankDetail of bankDetails) {
+      if (userDataMap.has(bankDetail.userId)) {
+        userDataMap.set(bankDetail.userId, {
+          ...userDataMap.get(bankDetail.userId),
+          bankDetails: [
+            ...userDataMap.get(bankDetail.userId).bankDetails,
+            bankDetail,
+          ],
+        });
+      }
+    }
+
+    for (let contactDetail of contactDetails) {
+      if (userDataMap.has(contactDetail.userId)) {
+        userDataMap.set(contactDetail.userId, {
+          ...userDataMap.get(contactDetail.userId),
+          contactDetails: [
+            ...userDataMap.get(contactDetail.userId).contactDetails,
+            contactDetail,
+          ],
+        });
+      }
+    }
+
+    const userData = Array.from(userDataMap.values());
+    next({
+      data: { userData },
+      message: "Successfully fetched all users data",
+    });
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);

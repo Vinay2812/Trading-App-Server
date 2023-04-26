@@ -6,6 +6,8 @@ import {
   UserBankDetails,
   UserContactDetails,
   UserOnlineDetails,
+  AdminProfile,
+  DashboardUser,
 } from "../models/index";
 
 export default function syncMssql() {
@@ -30,5 +32,11 @@ export default function syncMssql() {
   );
   DailyPublish.sync(options).catch((err) =>
     logger.error("failed to sync tr daily publish " + err)
+  );
+  AdminProfile.sync(options).catch((err) =>
+    logger.error("failed to sync admin profile " + err)
+  );
+  DashboardUser.sync(options).catch((err) =>
+    logger.error("failed to sync dashboard user " + err)
   );
 }
