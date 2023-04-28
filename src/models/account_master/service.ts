@@ -1,9 +1,9 @@
 import { processQueryOutput } from "../../utils/query";
-import { AccountMaster } from "./account_master.model";
+import { AccountMaster, AccountMasterInterface } from "./account_master.model";
 
-export async function getDataFromAccountMaster(query: any = { where: {} }) {
+export async function getAccountMasterByQuery(query: any = { where: {} }) {
   let output = await AccountMaster.findAll(query);
-  return processQueryOutput.forFindAll(output);
+  return processQueryOutput.forFindAll<AccountMasterInterface>(output);
 }
 
 export async function updateAccountMasterByQuery(

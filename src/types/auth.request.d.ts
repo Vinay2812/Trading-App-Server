@@ -2,6 +2,6 @@ import { UserBankDetailsInterface, UserContactDetailsInterface, UserOnlineDetail
 
 export type RegisterRequest = {
     userData: UserOnlineDetailsInterface,
-    bankData: Array<UserBankDetailsInterface>,
+    bankData: UserBankDetailsInterface[],
     contactData: Array<UserContactDetailsInterface>
 }

@@ -2,11 +2,18 @@ import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 import {
-  getDataFromAccountMaster,
+  getAccountMasterByQuery,
   getOnlineUsersByQuery,
+  getUserBankContactByQuery,
+  getUserBankDetailsByQuery,
   updateOnlineUserByQuery,
 } from "../models/index";
 import { Request, Response, NextFunction } from "express";
+import {
+  UserBankDetailsInterface,
+  UserContactDetailsInterface,
+  UserOnlineDetailsInterface,
+} from "../models/users/users.model";
 
 export async function updatePassword(
   req: Request,
@@ -82,7 +89,7 @@ export async function getOnlineUserCompanies(
       where: { mobile },
     };
     let queryResponse = await getOnlineUsersByQuery(getCompaniesQuery);
-    let companies = queryResponse.map(({ company_name}) => company_name);
+    let companies = queryResponse.map(({ company_name }) => company_name);
     next({ data: { companies }, message: "Companies fetched successfully" });
   } catch (err) {
     if (!err.status) err.status = 500;
@@ -129,7 +136,7 @@ export async function getAllAccountMasterCompanyName(
       },
       order: [["ac_name_e", "asc"]],
     };
-    const companies = await getDataFromAccountMaster(getCompanyNamesQuery);
+    const companies = await getAccountMasterByQuery(getCompanyNamesQuery);
     next({
       data: { companies },
       message: "Companies name fetched from account",
@@ -151,7 +158,7 @@ export async function getUserFromAccountMaster(
       attributes: ["accoid", "ac_code", "ac_name_e", "address_e", "gst_no"],
       where: { accoid },
     };
-    const userData = await getDataFromAccountMaster(getUserQuery);
+    const userData = await getAccountMasterByQuery(getUserQuery);
     if (!userData?.length) {
       throw createHttpError.NotFound("User not found");
     }
@@ -162,6 +169,97 @@ export async function getUserFromAccountMaster(
       },
     };
     next(response);
+  } catch (err) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+interface UserDetailsResponseInterface extends UserOnlineDetailsInterface {
+  isMapped: boolean;
+  isAdded: boolean;
+}
+export async function getAllUsersData(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const users = await getOnlineUsersByQuery();
+    let userIds: string[] = [];
+
+    for (let user of users) {
+      userIds.push(user.userId);
+    }
+
+    const query = {
+      where: {
+        userId: {
+          [Op.in]: userIds,
+        },
+      },
+    };
+
+    type UserData = {
+      userDetails: UserDetailsResponseInterface;
+      bankDetails: UserBankDetailsInterface[];
+      contactDetails: UserContactDetailsInterface[];
+    };
+
+    const [bankDetails, contactDetails] = await Promise.all([
+      getUserBankDetailsByQuery(query),
+      getUserBankContactByQuery(query),
+    ]);
+
+    const isMappedQuery = {
+      attributes: ["userId"],
+      where: { userId: { [Op.in]: userIds } },
+    };
+
+    const mappedUserIds = (await getAccountMasterByQuery(isMappedQuery)).map(
+      ({ userId }) => userId
+    );
+    let userDataMap = new Map<string, UserData>();
+
+    for (let user of users) {
+      const isAdded = !!user.accoid;
+      const isMapped = mappedUserIds.includes(user.userId);
+      userDataMap.set(user.userId, {
+        userDetails: { ...user, isAdded, isMapped },
+        bankDetails: [],
+        contactDetails: [],
+      });
+    }
+
+    for (let bankDetail of bankDetails) {
+      if (userDataMap.has(bankDetail.userId)) {
+        userDataMap.set(bankDetail.userId, {
+          ...userDataMap.get(bankDetail.userId),
+          bankDetails: [
+            ...userDataMap.get(bankDetail.userId).bankDetails,
+            bankDetail,
+          ],
+        });
+      }
+    }
+
+    for (let contactDetail of contactDetails) {
+      if (userDataMap.has(contactDetail.userId)) {
+        userDataMap.set(contactDetail.userId, {
+          ...userDataMap.get(contactDetail.userId),
+          contactDetails: [
+            ...userDataMap.get(contactDetail.userId).contactDetails,
+            contactDetail,
+          ],
+        });
+      }
+    }
+
+    const userData = Array.from(userDataMap.values());
+    next({
+      data: { userData },
+      message: "Successfully fetched all users data",
+    });
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);

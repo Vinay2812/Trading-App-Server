@@ -6,6 +6,7 @@ import {
   getUserById,
   getUserFromAccountMaster,
   updatePassword,
+  getAllUsersData
 } from "../controller/user.controller";
 import { validateRequest } from "../middlewares/validator.middleware";
 import {
@@ -15,7 +16,6 @@ import {
   getUserReq,
   updatePasswordReq,
 } from "../validators/user.validator";
-import { getAllUsersData } from "../controller/admin.controller";
 const router = Router();
 
 // user
