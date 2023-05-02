@@ -9,6 +9,7 @@ import {
   AdminProfile,
   DashboardUser,
 } from "../models/index";
+import { SubTodos, Todos } from "../models/todo/todo.model";
 
 export default function syncMssql() {
   const options = {
@@ -38,5 +39,11 @@ export default function syncMssql() {
   );
   DashboardUser.sync(options).catch((err) =>
     logger.error("failed to sync dashboard user " + err)
+  );
+  Todos.sync(options).catch((err) =>
+    logger.error("failed to sync todos " + err)
+  );
+  SubTodos.sync(options).catch((err) =>
+    logger.error("failed to sync sub todos " + err)
   );
 }

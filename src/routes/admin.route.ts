@@ -14,6 +14,7 @@ import {
   updateSingleTrade,
   updateAllTrade,
   getAllTradeStatus,
+  getAdminHome,
 } from "../controller/admin.controller";
 import {
   addUserReq,
@@ -31,8 +32,11 @@ import { validateRequest } from "../middlewares/validator.middleware";
 
 const router = Router();
 
+// admin login
 router.post("/login", validateRequest(adminLoginReq), adminLogin);
 
+// admin home
+router.get("/home", getAdminHome);
 // registration list
 router.get("/registration-list/users", getRegistrationListUsers);
 router.patch(

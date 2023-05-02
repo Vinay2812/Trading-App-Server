@@ -1,5 +1,9 @@
 import { Model } from "sequelize";
 
+function forFindOne<T = any>(data: Model<any, any>) {
+  return data?.dataValues as T;
+}
+
 function forFindAll<T = any>(data: Model<any, any>[]) {
   return data.map(({ dataValues }: any) => dataValues) as T[];
 }
@@ -12,7 +16,8 @@ function forInsert<T = any>(data: Model<T, T> | void): T {
   return data ? data?.dataValues : null;
 }
 export const processQueryOutput = {
-  forFindAll: forFindAll,
-  forUpdate: forUpdate,
-  forInsert: forInsert,
+  forFindOne,
+  forFindAll,
+  forUpdate,
+  forInsert,
 };

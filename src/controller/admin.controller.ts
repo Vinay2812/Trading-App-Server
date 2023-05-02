@@ -3,15 +3,15 @@ import logger from "../utils/logger";
 import createError from "http-errors";
 import {
   getAccountMasterByQuery,
-  getDataFromTenderBalanceView,
+  getTenderBalanceByQuery,
   getOnlineUsersByQuery,
   getUserBankDetailsByQuery,
-  getDataFromDailyPublish,
-  createAccountMaster,
+  getDailyPublishByQuery,
+  createAccountMasterByQuery,
   updateAccountMasterByQuery,
   updateOnlineUserByQuery,
-  createDailyPublish,
-  getDataFromDailyBalance,
+  createDailyPublishByQuery,
+  getDailyBalanceByQuery,
   updateDailyPublishByQuery,
 } from "../models/index";
 import { Op, Sequelize } from "sequelize";
@@ -245,7 +245,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
       cityid: "0",
       company_code: "1",
     };
-    const { accoid } = await createAccountMaster(insertData, {
+    const { accoid } = await createAccountMasterByQuery(insertData, {
       returning: true,
       plain: true,
     });
@@ -308,7 +308,7 @@ export async function getPublishList(
 ) {
   try {
     /* The below code is defining a query object `getTenderDetailsQuery` that will be used to retrieve data
-    from a view called `getDataFromTenderBalanceView`. The query specifies that the data should be
+    from a view called `getTenderBalanceByQuery`. The query specifies that the data should be
     filtered to only include records where the `balance` field is greater than 0 and the `buyer` field
     is equal to 2. The `await` keyword indicates that the data retrieval is asynchronous and the result
     will be assigned to the `tenderBalances` variable. */
@@ -318,9 +318,7 @@ export async function getPublishList(
       },
     };
 
-    const tenderBalances = await getDataFromTenderBalanceView(
-      getTenderDetailsQuery
-    );
+    const tenderBalances = await getTenderBalanceByQuery(getTenderDetailsQuery);
 
     /* The below code is written in TypeScript and it is creating a new array `uniqueList` that
     contains unique elements from the `tenderBalances` array based on the `tender_id` property. It
@@ -388,14 +386,14 @@ export async function postDailyPublish(
       attributes: ["tender_id"],
       where: { tender_id },
     };
-    const tenderIdExist = await getDataFromDailyPublish(tenderExistQuery);
+    const tenderIdExist = await getDailyPublishByQuery(tenderExistQuery);
     if (tenderIdExist?.length) {
       throw createError.Conflict(
         `tender no ${tender_no} already exist in published list`
       );
     }
     /* The below code is creating an object `insertData` with various properties and values, and then
-    inserting that data into a database table using the `createDailyPublish` function. It also sends
+    inserting that data into a database table using the `createDailyPublishByQuery` function. It also sends
     a message to the client indicating that the insertion was successful and updates a published
     list. */
     const publish_date = new Date().toISOString();
@@ -427,7 +425,7 @@ export async function postDailyPublish(
       status: "Y",
     };
     // insert into daily publish
-    await createDailyPublish(insertData);
+    await createDailyPublishByQuery(insertData);
     next({ message: "Successfully inserted into daily publish" });
     // tell client to fetch daily publish
     let sent_request = await updatePublishedList();
@@ -456,7 +454,7 @@ export async function getPublishedList(
     const getPublishedListQuery = {
       where: { balance: { [Op.gt]: 0 } },
     };
-    const dailybalances = await getDataFromDailyBalance(getPublishedListQuery);
+    const dailybalances = await getDailyBalanceByQuery(getPublishedListQuery);
     /* The below code is creating a new list `uniqueList` that contains unique elements from the input list
     `dailybalances`. It does this by iterating over each element in `dailybalances`, checking if its
     `tender_id` property is already in the `uniqueKeys` array. If it is not, the element is added to
@@ -636,7 +634,7 @@ export async function getAllTradeStatus(
   next: NextFunction
 ) {
   try {
-    /* The above code is querying data from a source using the function `getDataFromDailyPublish()` with a
+    /* The above code is querying data from a source using the function `getDailyPublishByQuery()` with a
     query object that specifies the attributes to retrieve and a blank `where` condition. It then checks
     the `status` attribute of each object in the returned array of objects and sets the
     `stop_trading_option` variable to `true` if any of the `status` values is equal to `"Y"`. The `for`
@@ -645,7 +643,7 @@ export async function getAllTradeStatus(
       attributes: ["status"],
       where: {},
     };
-    const statusArr = await getDataFromDailyPublish(query);
+    const statusArr = await getDailyPublishByQuery(query);
     let stop_trading_option = false;
     for (let { status } of statusArr) {
       if (status === "Y") {
@@ -654,6 +652,14 @@ export async function getAllTradeStatus(
       }
     }
     next({ data: { stop_trading_option } });
+  } catch (err) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export function getAdminHome(req: Request, res: Response, next: NextFunction) {
+  try {
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);

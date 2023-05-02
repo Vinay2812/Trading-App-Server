@@ -56,3 +56,43 @@ export async function createUserContactDetailsByQuery(
   let data = await UserContactDetails.create(values, options);
   return processQueryOutput.forInsert(data);
 }
+
+export async function deleteUserBankDetailsByQuery(query: any = { where: {} }) {
+  let data = await UserBankDetails.destroy(query);
+  return data;
+}
+
+export async function deleteUserContactDetailsByQuery(
+  query: any = { where: {} }
+) {
+  let data = await UserContactDetails.destroy(query);
+  return data;
+}
+
+export async function deleteUserOnlineDetailsByQuery(
+  query: any = { where: {} }
+) {
+  let data = await UserOnlineDetails.destroy(query);
+  return data;
+}
+
+export async function getUserBankDetailsCountByQuery(
+  query: any = { where: {} }
+) {
+  let data = await UserBankDetails.count(query);
+  return data;
+}
+
+export async function getUserContactDetailsCountByQuery(
+  query: any = { where: {} }
+) {
+  let data = await UserContactDetails.count(query);
+  return data;
+}
+
+export async function getUserOnlineDetailsCountByQuery(
+  query: any = { where: {} }
+) {
+  let data = await UserOnlineDetails.count(query);
+  return data;
+}

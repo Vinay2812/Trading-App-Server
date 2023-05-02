@@ -13,6 +13,7 @@ import AdminRoute from "./routes/admin.route";
 import UserRoute from "./routes/user.route";
 import ErrorRoute from "./routes/error.route";
 import InvalidRoute from "./routes/invalid.route";
+import TodoRoute from "./routes/todo.route";
 
 // utils
 import { SERVER_PORT, SERVER_URL } from "./utils/config";
@@ -51,6 +52,7 @@ app.post(
 app.use("/admin", AdminRoute);
 app.use("/auth", AuthRoute);
 app.use("/user", UserRoute);
+app.use("/todos", TodoRoute);
 app.use("/error", ErrorRoute);
 
 // handle invalid routes
