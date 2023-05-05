@@ -5,8 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon  ./src/app.ts",
-    "client": "cd client && npm run dev",
+    "dev": "redis-server --daemonize yes && sudo docker start sql1 && nodemon ./src/app.ts",
     "mssql": "sudo docker start sql1 && sudo docker exec -it sql1 \"bash\""
   },
   "dependencies": {

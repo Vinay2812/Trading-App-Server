@@ -10,6 +10,7 @@ export interface TodosInterface {
   description: string;
   status: string;
   priority: TodoPriority;
+  dueDate: Date;
 }
 
 export interface SubTodosInterface {
@@ -19,6 +20,7 @@ export interface SubTodosInterface {
   description: string;
   status: string;
   priority: TodoPriority;
+  dueDate: Date;
 }
 
 export const Todos = mssql.define<Model<TodosInterface>>("todos", {
@@ -32,6 +34,7 @@ export const Todos = mssql.define<Model<TodosInterface>>("todos", {
   description: { type: DataTypes.STRING, allowNull: true },
   status: { type: DataTypes.STRING },
   priority: { type: DataTypes.STRING },
+  dueDate: { type: DataTypes.DATE },
 });
 
 export const SubTodos = mssql.define<Model<SubTodosInterface>>("sub_todos", {
@@ -45,4 +48,5 @@ export const SubTodos = mssql.define<Model<SubTodosInterface>>("sub_todos", {
   description: { type: DataTypes.STRING, allowNull: true },
   status: { type: DataTypes.STRING },
   priority: { type: DataTypes.STRING },
+  dueDate: { type: DataTypes.DATE },
 });

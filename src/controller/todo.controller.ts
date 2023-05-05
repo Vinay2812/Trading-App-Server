@@ -33,7 +33,7 @@ export async function postTodo(
   next: NextFunction
 ) {
   try {
-    const { userId, title, description, status, priority, subTodos } = req.body;
+    const { userId, title, description, status, priority, dueDate } = req.body;
 
     const todo = await createTodoByQuery({
       userId,
@@ -41,6 +41,7 @@ export async function postTodo(
       description,
       status,
       priority,
+      dueDate,
     });
 
     next({ message: "Todo created", data: { todo } });
@@ -58,13 +59,14 @@ export async function updateTodo(
   next: NextFunction
 ) {
   try {
-    const { todoId, title, description, status, priority } = req.body;
+    const { todoId, title, description, status, priority, dueDate } = req.body;
     const todo = await updateTodoByQuery(
       {
         title,
         description,
         status,
         priority,
+        dueDate
       },
       {
         where: {
@@ -159,7 +161,7 @@ export async function postSubTodo(
   next: NextFunction
 ) {
   try {
-    const { todoId, title, description, status, priority } = req.body;
+    const { todoId, title, description, status, priority, dueDate } = req.body;
 
     const subTodo = await createSubTodoByQuery({
       todoId,
@@ -167,6 +169,7 @@ export async function postSubTodo(
       description,
       status,
       priority,
+      dueDate
     });
 
     next({ message: "SubTodo created", data: { subTodo } });
@@ -184,13 +187,14 @@ export async function updateSubTodo(
   next: NextFunction
 ) {
   try {
-    const { subTodoId, title, description, status, priority } = req.body;
+    const { subTodoId, title, description, status, priority, dueDate } = req.body;
     const subTodo = await updateTodoByQuery(
       {
         title,
         description,
         status,
         priority,
+        dueDate
       },
       {
         where: {

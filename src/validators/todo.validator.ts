@@ -16,9 +16,10 @@ export const postTodoReq = Joi.object({
   body: {
     userId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required().allow(null),
+    description: Joi.string().optional().min(0),
     status: Joi.string().required().valid("complete", "incomplete"),
     priority: Joi.string().required().valid("low", "medium", "high"),
+    dueDate: Joi.date().required(),
   },
 }).required();
 
@@ -26,9 +27,10 @@ export const updateTodoReq = Joi.object({
   body: {
     todoId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required().allow(null),
+    description: Joi.string().allow(null),
     status: Joi.string().required(),
     priority: Joi.string().required().valid("low", "medium", "high"),
+    dueDate: Joi.date().required(),
   },
 }).required();
 
@@ -42,9 +44,10 @@ export const postSubTodoReq = Joi.object({
   body: {
     todoId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required().allow(null),
+    description: Joi.string().allow(null),
     status: Joi.string().required(),
     priority: Joi.string().required().valid("low", "medium", "high"),
+    dueDate: Joi.date().required(),
   },
 }).required();
 
@@ -52,9 +55,10 @@ export const updateSubTodoReq = Joi.object({
   body: {
     subTodoId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required().allow(null),
+    description: Joi.string().allow(null),
     status: Joi.string().required(),
     priority: Joi.string().required().valid("low", "medium", "high"),
+    dueDate: Joi.date().required(),
   },
 }).required();
 
