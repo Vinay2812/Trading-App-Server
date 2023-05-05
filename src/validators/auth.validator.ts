@@ -49,14 +49,14 @@ export const registerReq = Joi.object({
 
 export const validateOTPReq = Joi.object({
   body: Joi.object({
-    userId: Joi.string().required(),
+    email: Joi.string().required(),
     otp: Joi.string().required().min(OTP_LENGTH).max(OTP_LENGTH),
   }).required(),
 }).required();
 
 export const sendOTPReq = Joi.object({
   body: Joi.object({
-    userId: Joi.string().required(),
+    email: Joi.string().required().email(),
   }).required(),
 }).required();
 

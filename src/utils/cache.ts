@@ -32,6 +32,6 @@ export async function deleteCache(key: any) {
   }
 }
 
-export function getOtpCacheKey(userId: any) {
-  return `otp/${userId}`;
+export function getOtpCacheKey(email: string) {
+  return `otp/${email}`;
 }

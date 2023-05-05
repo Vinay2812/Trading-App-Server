@@ -65,7 +65,7 @@ export async function register(
       },
       message: "User registered successfully",
     });
-    const { userId, email } = userDetails;
+    const { userId } = userDetails;
 
     Promise.all([
       // insert all bank details
@@ -79,8 +79,6 @@ export async function register(
         return createUserContactDetailsByQuery(insertContactData);
       }),
     ]);
-
-    sendOtpByEmail(email);
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);
@@ -120,14 +118,17 @@ export async function validateOTP(
   res: Response,
   next: NextFunction
 ) {
-  const { userId, otp } = req.body;
+  const { email, otp } = req.body;
   try {
-    const cacheKey = getOtpCacheKey(userId);
+    const cacheKey = getOtpCacheKey(email);
     const cachedOtp = await getCache(cacheKey);
     if (otp !== cachedOtp) {
       throw createHttpError.NotFound("Invalid otp");
     }
-    next({ message: "Otp validation was successfull" });
+    next({
+      data: { validEmail: true },
+      message: "Otp validation was successfull",
+    });
     deleteCache(cacheKey);
   } catch (err) {
     if (!err.status) err.status = 500;
@@ -136,13 +137,8 @@ export async function validateOTP(
 }
 
 export async function sendOTP(req: Request, res: Response, next: NextFunction) {
-  const { userId } = req.body;
+  const { email } = req.body;
   try {
-    const getEmailQuery = {
-      attributes: ["email"],
-      where: { userId },
-    };
-    const { email } = (await getOnlineUsersByQuery(getEmailQuery))[0];
     const email_before = email.split("@")[0];
     let email_hidden =
       email_before.substring(0, email_before.length / 2) +
@@ -150,6 +146,7 @@ export async function sendOTP(req: Request, res: Response, next: NextFunction) {
       email.split("@")[1];
     await sendOtpByEmail(email);
     next({
+      data: { otp_sent: true },
       message: `Otp sent successfully to ${email_hidden}.\nOtp will be valid for 5 minutes`,
     });
   } catch (err) {
@@ -159,9 +156,9 @@ export async function sendOTP(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function getOTP(req: Request, res: Response, next: NextFunction) {
-  const { userId } = req.params;
+  const { email } = req.params;
   try {
-    const cacheKey = getOtpCacheKey(userId);
+    const cacheKey = getOtpCacheKey(email);
     const otp = await getCache(cacheKey);
     if (!otp) {
       throw createHttpError.NotFound("Otp not found");

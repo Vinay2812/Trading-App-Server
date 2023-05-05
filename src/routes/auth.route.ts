@@ -20,8 +20,8 @@ router.post("/register", validateRequest(registerReq), register);
 router.post("/login", validateRequest(loginReq), login);
 
 // otp
-router.post("/otp/send", validateRequest(sendOTPReq), sendOTP);
+router.post("/send-otp", validateRequest(sendOTPReq), sendOTP);
 router.get("/otp/:userId", getOTP);
-router.post("/otp/validate", validateRequest(validateOTPReq), validateOTP);
+router.post("/validate-otp", validateRequest(validateOTPReq), validateOTP);
 
 export default router;

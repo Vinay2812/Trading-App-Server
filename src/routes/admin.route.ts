@@ -45,7 +45,7 @@ router.patch(
   updateAuthorization
 );
 router.post(
-  "/registration-list/:userId/add",
+  "/registration-list/add-user",
   validateRequest(addUserReq),
   addUser
 );
