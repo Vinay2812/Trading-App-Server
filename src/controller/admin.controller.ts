@@ -249,7 +249,6 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
       returning: true,
       plain: true,
     });
-    console.log(accoid)
     let setQuery = { accoid };
     let updateQuery = { where: { userId }, returning: false };
     await updateOnlineUserByQuery(setQuery, updateQuery);

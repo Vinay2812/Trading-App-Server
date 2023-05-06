@@ -11,13 +11,13 @@ export const registerReq = Joi.object({
       district: Joi.string().required(),
       pincode: Joi.string().required().min(6).max(6),
       mobile: Joi.string().required().min(10).max(10),
-      whatsapp: Joi.string().min(10).max(10).default(null),
-      gst: Joi.string().min(15).max(15).default(null),
+      whatsapp: Joi.string().min(10).max(10).allow("", null).default(""),
+      gst: Joi.string().min(15).max(15).allow("", null).default(""),
       pan: Joi.string().required().min(10).max(10),
       fssai: Joi.string().default(null),
       tan: Joi.string().default(null),
       constitution_of_firm: Joi.string().required(),
-      password: Joi.string().required()
+      password: Joi.string().required(),
     }).required(),
     bankData: Joi.array()
       .items(
@@ -38,7 +38,7 @@ export const registerReq = Joi.object({
           full_name: Joi.string().required(),
           designation: Joi.string().required(),
           mobile: Joi.string().min(10).max(10),
-          whatsapp: Joi.string().min(10).max(10).allow(null, ""),
+          whatsapp: Joi.string().min(10).max(10).allow(null, "").default(""),
           email: Joi.string().required().email(),
         })
       )

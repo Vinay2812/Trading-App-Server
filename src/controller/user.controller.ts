@@ -56,7 +56,7 @@ export async function updatePassword(
 }
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
-  const { company_name, mobile } = req.body;
+  const { company_name, mobile } = req.query;
   try {
     const getUserQuery = {
       where: {
@@ -82,7 +82,7 @@ export async function getOnlineUserCompanies(
   res: Response,
   next: NextFunction
 ) {
-  const { mobile } = req.body;
+  const { mobile } = req.params;
   try {
     const getCompaniesQuery = {
       attributes: ["company_name"],
@@ -102,7 +102,7 @@ export async function getUserById(
   res: Response,
   next: NextFunction
 ) {
-  const { userId } = req.body;
+  const { userId } = req.params;
   try {
     const getQuery = {
       where: { userId },
@@ -152,7 +152,7 @@ export async function getUserFromAccountMaster(
   res: Response,
   next: NextFunction
 ) {
-  const { accoid } = req.body;
+  const { accoid } = req.params;
   try {
     const getUserQuery = {
       attributes: ["accoid", "ac_code", "ac_name_e", "address_e", "gst_no"],
