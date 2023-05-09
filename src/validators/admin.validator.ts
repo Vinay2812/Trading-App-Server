@@ -29,16 +29,16 @@ export const mapClientReq = Joi.object({
   }).required(),
 }).required();
 
-export const postDailyPublishReq = Joi.object({
+export const postPublishListReq = Joi.object({
   body: Joi.object({
-    tender_no: Joi.required(),
-    tender_date: Joi.required(),
-    season: Joi.required(),
-    grade: Joi.required(),
-    quantal: Joi.required(),
-    lifting_date: Joi.required(),
-    purchase_rate: Joi.required(),
-    mill_rate: Joi.required(),
+    tender_no: Joi.number().required(),
+    tender_date: Joi.date().required(),
+    season: Joi.string().required(),
+    grade: Joi.string().required(),
+    quantal: Joi.number().required(),
+    lifting_date: Joi.date().required(),
+    purchase_rate: Joi.number().required(),
+    mill_rate: Joi.number().required(),
     mc: Joi.required(),
     pt: Joi.required(),
     item_code: Joi.required(),

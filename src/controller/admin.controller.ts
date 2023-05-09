@@ -346,7 +346,7 @@ export async function getPublishList(
  * This function posts daily publish data to a database and checks if the tender already exists in the
  * published list.
  */
-export async function postDailyPublish(
+export async function postPublishList(
   req: Request,
   res: Response,
   next: NextFunction

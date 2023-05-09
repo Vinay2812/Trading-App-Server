@@ -5,7 +5,7 @@ import {
   getPublishList,
   getPublishedList,
   getRegistrationListUsers,
-  postDailyPublish,
+  postPublishList,
   mapClient,
   updateAuthorization,
   updateAllSaleRate,
@@ -21,7 +21,7 @@ import {
   adminLoginReq,
   mapClientReq,
   modifySingleTradeReq,
-  postDailyPublishReq,
+  postPublishListReq,
   updateAllSaleRateReq,
   updateAllTradeReq,
   updateAuthorizationReq,
@@ -54,9 +54,9 @@ router.put("/registration-list/map", validateRequest(mapClientReq), mapClient);
 //publish list
 router.get("/publish-list", getPublishList);
 router.post(
-  "/publish-list/dailypublish",
-  validateRequest(postDailyPublishReq),
-  postDailyPublish
+  "/publish-list",
+  validateRequest(postPublishListReq),
+  postPublishList
 );
 
 // published-list
