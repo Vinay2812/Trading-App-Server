@@ -81,6 +81,10 @@ export async function getRegistrationListUsers(
         "mobile",
         "authorized",
         "accoid",
+        "gst",
+        "state",
+        "address",
+        "district",
       ],
     });
     next({
@@ -312,9 +316,18 @@ export async function getPublishList(
     filtered to only include records where the `balance` field is greater than 0 and the `buyer` field
     is equal to 2. The `await` keyword indicates that the data retrieval is asynchronous and the result
     will be assigned to the `tenderBalances` variable. */
+    const publishedTenderIds = (
+      await getDailyBalanceByQuery({
+        attributes: ["tender_id"],
+      })
+    ).map((tender) => tender.tender_id);
     const getTenderDetailsQuery = {
       where: {
-        [Op.and]: [{ balance: { [Op.gt]: 0 } }, { buyer: 2 }],
+        [Op.and]: [
+          { balance: { [Op.gt]: 0 } },
+          { buyer: 2 },
+          { tender_id: { [Op.notIn]: publishedTenderIds }}
+        ],
       },
     };
 
@@ -426,7 +439,7 @@ export async function postPublishList(
     };
     // insert into daily publish
     await createDailyPublishByQuery(insertData);
-    next({ message: "Successfully inserted into daily publish" });
+    next({ message: "Successfully inserted into published list" });
     // tell client to fetch daily publish
     let sent_request = await updatePublishedList();
     sent_request && logger.debug("Sent request to update published list");

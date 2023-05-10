@@ -49,7 +49,7 @@ router.post(
   validateRequest(addUserReq),
   addUser
 );
-router.put("/registration-list/map", validateRequest(mapClientReq), mapClient);
+router.post("/registration-list/map-client", validateRequest(mapClientReq), mapClient);
 
 //publish list
 router.get("/publish-list", getPublishList);

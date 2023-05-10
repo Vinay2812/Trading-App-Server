@@ -9,7 +9,7 @@ import {
 } from "./users.model";
 
 export async function getOnlineUsersByQuery(query: any = { where: {} }) {
-  let users = await UserOnlineDetails.findAll({ ...query });
+  let users = await UserOnlineDetails.findAll(query);
   return processQueryOutput.forFindAll<UserOnlineDetailsInterface>(users);
 }
 
