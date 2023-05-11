@@ -11,10 +11,11 @@ import {
   updateAllSaleRate,
   updateSingleSaleRate,
   modifySingleTrade,
-  updateSingleTrade,
+  updatePublishedItemStatus,
   updateAllTrade,
   getAllTradeStatus,
   getAdminHome,
+  updatePublishedListItem,
 } from "../controller/admin.controller";
 import {
   addUserReq,
@@ -26,7 +27,8 @@ import {
   updateAllTradeReq,
   updateAuthorizationReq,
   updateSingleSaleRateReq,
-  updateSingleTradeReq,
+  updatePublishedItemStatusReq,
+  updatePublishedListItemReq,
 } from "../validators/admin.validator";
 import { validateRequest } from "../middlewares/validator.middleware";
 
@@ -49,7 +51,11 @@ router.post(
   validateRequest(addUserReq),
   addUser
 );
-router.post("/registration-list/map-client", validateRequest(mapClientReq), mapClient);
+router.post(
+  "/registration-list/map-client",
+  validateRequest(mapClientReq),
+  mapClient
+);
 
 //publish list
 router.get("/publish-list", getPublishList);
@@ -62,30 +68,35 @@ router.post(
 // published-list
 router.get("/published-list", getPublishedList);
 router.patch(
-  "/published-list/trade/status",
-  validateRequest(updateSingleTradeReq),
-  updateSingleTrade
+  "/published-list/status",
+  validateRequest(updatePublishedItemStatusReq),
+  updatePublishedItemStatus
 );
 router.patch(
-  "/published-list/trade/status/all",
+  "/published-list/item",
+  validateRequest(updatePublishedListItemReq),
+  updatePublishedListItem
+);
+router.patch(
+  "/published-list/status/all",
   validateRequest(updateAllTradeReq),
   updateAllTrade
 );
 router.patch(
-  "/published-list/trade/sale_rate",
+  "/published-list/sale_rate",
   validateRequest(updateSingleSaleRateReq),
   updateSingleSaleRate
 );
 router.patch(
-  "/published-list/trade/sale_rate/all",
+  "/published-list/sale_rate/all",
   validateRequest(updateAllSaleRateReq),
   updateAllSaleRate
 );
 router.patch(
-  "/published-list/trade/update",
+  "/published-list/update",
   validateRequest(modifySingleTradeReq),
   modifySingleTrade
 );
-router.get("/published-list/trade/status/all", getAllTradeStatus);
+router.get("/published-list/status/all", getAllTradeStatus);
 
 export default router;

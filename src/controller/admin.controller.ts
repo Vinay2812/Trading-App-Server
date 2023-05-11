@@ -21,6 +21,7 @@ import {
   updateUserAuthorization,
 } from "../socket/controller/emit";
 import { NextFunction, Request, Response } from "express";
+import { UpdatePublishedListItemReqType } from "../validators/admin.validator";
 
 /**
  * This is an async function that handles admin login by checking the username and password provided in
@@ -326,7 +327,7 @@ export async function getPublishList(
         [Op.and]: [
           { balance: { [Op.gt]: 0 } },
           { buyer: 2 },
-          { tender_id: { [Op.notIn]: publishedTenderIds }}
+          { tender_id: { [Op.notIn]: publishedTenderIds } },
         ],
       },
     };
@@ -492,7 +493,7 @@ export async function getPublishedList(
 /**
  * This function updates the status of a single trade and sends a request to update trading options.
  */
-export async function updateSingleTrade(
+export async function updatePublishedItemStatus(
   req: Request,
   res: Response,
   next: NextFunction
@@ -515,6 +516,31 @@ export async function updateSingleTrade(
     });
     const sent_request = await updateTradingOption();
     sent_request && logger.debug("Sent request to update trading option");
+  } catch (err) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function updatePublishedListItem(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { tender_id, status, sale_rate, published_qty } = req.body;
+
+    const setQuery = {
+      status,
+      sale_rate,
+      published_qty,
+    };
+    const query = { where: { tender_id }, returning: true };
+
+    await updateDailyPublishByQuery(setQuery, query);
+    next({
+      message: "Updated published list item",
+    });
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);

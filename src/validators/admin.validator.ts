@@ -1,4 +1,5 @@
-import Joi from "joi";
+import * as Joi from "@hapi/joi";
+import "joi-extract-type";
 
 export const adminLoginReq = Joi.object({
   body: Joi.object({
@@ -9,23 +10,23 @@ export const adminLoginReq = Joi.object({
 
 export const updateAuthorizationReq = Joi.object({
   body: Joi.object({
-    authorized: Joi.required().valid(0, 1),
+    authorized: Joi.number().valid(0, 1).required(),
   }).required(),
   params: Joi.object({
-    userId: Joi.required(),
+    userId: Joi.string().required(),
   }).required(),
 }).required();
 
 export const addUserReq = Joi.object({
   body: Joi.object({
-    userId: Joi.required(),
+    userId: Joi.string().required(),
   }).required(),
 }).required();
 
 export const mapClientReq = Joi.object({
   body: Joi.object({
-    userId: Joi.required(),
-    accoid: Joi.required(),
+    userId: Joi.string().required(),
+    accoid: Joi.number().required(),
   }).required(),
 }).required();
 
@@ -51,17 +52,32 @@ export const postPublishListReq = Joi.object({
     sale_rate: Joi.number().required(),
     publish_quantal: Joi.number().required(),
     multiple_of: Joi.number().required(),
-    auto_confirm: Joi.string().valid(...["Y", "N"]).required(),
+    auto_confirm: Joi.string()
+      .valid(...["Y", "N"])
+      .required(),
     tender_do: Joi.number().required(),
-    type: Joi.string().valid(...["F", "P"]).required(),
+    type: Joi.string()
+      .valid(...["F", "P"])
+      .required(),
     mill_code: Joi.number().required(),
     payment_to: Joi.number().required(),
   }).required(),
 }).required();
 
-export const updateSingleTradeReq = Joi.object({
+export const updatePublishedListItemReq = Joi.object({
+  body: {
+    tender_id: Joi.number().required(),
+    status: Joi.string()
+      .valid(...["Y", "N"])
+      .required(),
+    sale_rate: Joi.number().required(),
+    published_qty: Joi.number().required(),
+  },
+}).required();
+
+export const updatePublishedItemStatusReq = Joi.object({
   body: Joi.object({
-    tender_id: Joi.required(),
+    tender_id: Joi.number().required(),
     status: Joi.string().required().valid("Y", "N"),
   }).required(),
 }).required();
@@ -74,7 +90,7 @@ export const updateAllTradeReq = Joi.object({
 
 export const updateSingleSaleRateReq = Joi.object({
   body: Joi.object({
-    tender_id: Joi.required(),
+    tender_id: Joi.number().required(),
     sale_rate: Joi.number().required(),
   }).required(),
 }).required();
@@ -87,8 +103,13 @@ export const updateAllSaleRateReq = Joi.object({
 
 export const modifySingleTradeReq = Joi.object({
   body: Joi.object({
-    tender_id: Joi.required(),
+    tender_id: Joi.number().required(),
     published_qty: Joi.number().required(),
     sale_rate: Joi.number().required(),
   }).required(),
 }).required();
+
+export type AdminLoginReq = Joi.extractType<typeof adminLoginReq>;
+export type UpdatePublishedListItemReqType = Joi.extractType<
+  typeof updatePublishedListItemReq
+>;

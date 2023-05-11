@@ -1,4 +1,5 @@
-import Joi from "joi";
+import * as Joi from "@hapi/joi";
+import "joi-extract-type";
 import { OTP_LENGTH } from "../utils/config";
 
 export const registerReq = Joi.object({
