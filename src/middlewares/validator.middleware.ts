@@ -1,4 +1,4 @@
-import * as Joi from "@hapi/joi";
+import Joi from "joi";
 import createError from "http-errors";
 import { NextFunction, Response, Request } from "express";
 import logger from "../utils/logger";
@@ -13,9 +13,8 @@ export const validateRequest =
         params: req.params,
         headers: req.headers,
       };
-      type SchemaType = Joi.extractType<typeof validator>;
       logger.debug(data);
-      const { error, value }: Joi.ValidationResult<SchemaType> =
+      const { error, value }: Joi.ValidationResult =
         validator.validate(data, {
           allowUnknown: true,
           abortEarly: false,

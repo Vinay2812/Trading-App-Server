@@ -1,5 +1,4 @@
-import * as Joi from "@hapi/joi";
-import "joi-extract-type";
+import Joi from "joi";
 
 export const getTodosReq = Joi.object({
   params: {

@@ -1,5 +1,4 @@
-import * as Joi from "@hapi/joi";
-import "joi-extract-type";
+import Joi from "joi";
 
 export const adminLoginReq = Joi.object({
   body: Joi.object({
@@ -108,8 +107,3 @@ export const modifySingleTradeReq = Joi.object({
     sale_rate: Joi.number().required(),
   }).required(),
 }).required();
-
-export type AdminLoginReq = Joi.extractType<typeof adminLoginReq>;
-export type UpdatePublishedListItemReqType = Joi.extractType<
-  typeof updatePublishedListItemReq
->;

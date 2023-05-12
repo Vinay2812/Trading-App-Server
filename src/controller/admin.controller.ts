@@ -21,7 +21,6 @@ import {
   updateUserAuthorization,
 } from "../socket/controller/emit";
 import { NextFunction, Request, Response } from "express";
-import { UpdatePublishedListItemReqType } from "../validators/admin.validator";
 import io from "../connections/socket.connection";
 import { UPDATE_PUBLISHED_LIST } from "../utils/socket-emits";
 

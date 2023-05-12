@@ -1,16 +1,12 @@
 import { Sequelize } from "sequelize";
-import {
-  DATABASE,
-  DB_PASSWORD,
-  DB_SERVER,
-  DB_USER,
-} from "../utils/config";
+import { DB_NAME, DB_PASSWORD, DB_SERVER, DB_USER } from "../utils/config";
 import logger from "../utils/logger";
 
-const mssql = new Sequelize(DATABASE, DB_USER, DB_PASSWORD, {
+const mssql = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   host: DB_SERVER,
   benchmark: true,
-  logging: (msg, timing) => logger.warn(`Executed query - ${msg} in ${timing} ms`),
+  logging: (msg, timing) =>
+    logger.warn(`Executed query - ${msg} in ${timing} ms`),
   dialect: "mssql",
   define: {
     timestamps: false,
@@ -19,14 +15,13 @@ const mssql = new Sequelize(DATABASE, DB_USER, DB_PASSWORD, {
 });
 
 mssql
-    .authenticate({ logging: false})
-    .then(() => {
-      logger.info(`🚀 [mssql]: connected to ${DB_SERVER}/${DATABASE}`);
-    })
-    .catch((err) => {
-      logger.error(`❌ [mssql]: unable to connect to ${DB_SERVER}/${DATABASE}`)
-      logger.error(err);
-    });
-
+  .authenticate({ logging: false })
+  .then(() => {
+    logger.info(`🚀 [mssql]: connected to ${DB_SERVER}/${DB_NAME}`);
+  })
+  .catch((err) => {
+    logger.error(`❌ [mssql]: unable to connect to ${DB_SERVER}/${DB_NAME}`);
+    logger.error(err);
+  });
 
 export default mssql;

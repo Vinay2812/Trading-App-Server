@@ -1,29 +1,16 @@
-import { createClient } from "redis";
+import { Redis } from "ioredis";
 import { REDIS_URL } from "../utils/config";
 import logger from "../utils/logger";
 
-const RedisClient = createClient({
-  url: REDIS_URL,
+const RedisClient = new Redis(REDIS_URL);
+
+RedisClient.on("connect", () => {
+  logger.info(`🚀 [redis]: running on ${REDIS_URL}`);
 });
 
-async function connectRedis() {
-  return RedisClient.connect()
-    .then(() => {
-      logger.info(`🚀 [redis]: running on ${REDIS_URL}`);
-      return true;
-    })
-    .catch((err) => {
-      logger.error(`❌ [redis]: unable to connect ${REDIS_URL}`);
-      const timer = setTimeout(() => {
-        if (connectRedis()) {
-          clearTimeout(timer);
-          return true;
-        }
-        return false;
-      }, 5000);
-    });
-}
-
-(async () => connectRedis())();
+RedisClient.on("error", (err) => {
+  logger.error(`❌ [redis]: unable to connect ${REDIS_URL}`);
+  console.log(err);
+});
 
 export default RedisClient;
