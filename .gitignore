@@ -14,5 +14,7 @@ data/.~lock.Vinay.xlsx#
 debug/
 /.vscode
 client/dist/
+yarrn.lock
+package-lock.json
 
 /dist/
