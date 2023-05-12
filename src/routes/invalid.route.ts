@@ -8,7 +8,7 @@ router.all("*", (req: Request, res: Response, next: NextFunction) => {
       req.originalUrl
     }' with '${req.method.toUpperCase()}' method`;
     throw createError.NotFound(message);
-  } catch (err) {
+  } catch (err: Error | any) {
     next(err);
   }
 });

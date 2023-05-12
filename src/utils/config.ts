@@ -20,15 +20,15 @@ const ADMIN_USERNAME: string = process.env.ADMIN_USERNAME!;
 const ADMIN_PASSWORD: string = process.env.ADMIN_PASSWORD!;
 
 // mail
-const MAIL_EMAIL: string = process.env.MAIL_EMAIL;
+const MAIL_EMAIL: string = process.env.MAIL_EMAIL!;
 const MAIL_PASSWORD: string = process.env.MAIL_PASSWORD!;
 
 // otp
-const OTP_LENGTH: number = parseInt(process.env.OTP_LENGTH) || 6;
+const OTP_LENGTH: number = parseInt(process.env.OTP_LENGTH!) || 6;
 const OTP_VALID_INTERVAL: number = 5 * 60 * 1000;
 
 // id
-const UNIQUE_ID_LENGTH: number = parseInt(process.env.UNIQUE_ID_LENGTH) || 15;
+const UNIQUE_ID_LENGTH: number = parseInt(process.env.UNIQUE_ID_LENGTH!) || 15;
 
 export {
   DB_NAME,

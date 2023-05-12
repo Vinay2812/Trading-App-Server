@@ -19,7 +19,7 @@ mssql
   .then(() => {
     logger.info(`🚀 [mssql]: connected to ${DB_SERVER}/${DB_NAME}`);
   })
-  .catch((err) => {
+  .catch((err: Error | any) => {
     logger.error(`❌ [mssql]: unable to connect to ${DB_SERVER}/${DB_NAME}`);
     logger.error(err);
   });

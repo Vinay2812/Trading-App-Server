@@ -23,6 +23,19 @@ import {
 import { NextFunction, Request, Response } from "express";
 import io from "../connections/socket.connection";
 import { UPDATE_PUBLISHED_LIST } from "../utils/socket-emits";
+import {
+  AddUserRequest,
+  AdminLoginRequest,
+  MapClientRequest,
+  ModifySingleTradeRequest,
+  PostPublishListRequest,
+  UpdateAllSaleRateRequest,
+  UpdateAllTradeRequest,
+  UpdateAuthorizationRequest,
+  UpdatePublishedItemStatusRequest,
+  UpdatePublishedListItemRequest,
+  UpdateSingleSaleRateRequest,
+} from "../validators/admin.validator";
 
 /**
  * This is an async function that handles admin login by checking the username and password provided in
@@ -39,7 +52,7 @@ import { UPDATE_PUBLISHED_LIST } from "../utils/socket-emits";
  * containing data and a message to
  */
 export async function adminLogin(
-  req: Request,
+  req: AdminLoginRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -55,7 +68,7 @@ export async function adminLogin(
       throw createError.BadRequest("Invalid password");
     }
     next({ data: { username, admin: 1 }, message: "Login successful" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -93,7 +106,7 @@ export async function getRegistrationListUsers(
       message: "Successfully fetched registration list users",
       data: users,
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -103,7 +116,7 @@ export async function getRegistrationListUsers(
  * This function updates the authorization status of a user and returns a success message.
  */
 export async function updateAuthorization(
-  req: Request,
+  req: UpdateAuthorizationRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -118,7 +131,7 @@ export async function updateAuthorization(
       { where: { userId }, returning: true }
     );
     next({ message: `Authorization updated successfully for ${userId}` });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -128,7 +141,11 @@ export async function updateAuthorization(
  * This function adds a new user to the system by retrieving their information from the database and
  * creating a new account for them.
  */
-export async function addUser(req: Request, res: Response, next: NextFunction) {
+export async function addUser(
+  req: AddUserRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { userId } = req.body;
     /* The below code is written in TypeScript and it is creating a query to retrieve the maximum value
@@ -200,7 +217,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
     const { bank_name, account_number, ifsc, account_name } = bankData[0];
 
     const insertData = {
-      ac_code: next_ac_code,
+      ac_code: next_ac_code as number,
       ac_name_e: company_name,
       ac_name_r: company_name,
       ac_type: "P",
@@ -261,7 +278,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
     next({ message: "User added successfully" });
     const socket_res = await updateUserAuthorization(userId, accoid);
     socket_res && logger.debug("Sent request to update authorization");
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -272,7 +289,7 @@ export async function addUser(req: Request, res: Response, next: NextFunction) {
  * account ID, and sends a request to update authorization via socket.
  */
 export async function mapClient(
-  req: Request,
+  req: MapClientRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -297,7 +314,7 @@ export async function mapClient(
     next({ message: "Mapping was successful" });
     const socket_res = await updateUserAuthorization(userId, accoid);
     socket_res && logger.debug("Sent request to update authorization");
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -349,9 +366,9 @@ export async function getPublishList(
         uniqueList.push(ele);
       }
     }
-    uniqueList.sort((a, b) => a.tender_no - b.tender_no);
+    uniqueList.sort((a, b) => a.tender_no! - b.tender_no!);
     next({ message: "Successfully fetched tender balances", data: uniqueList });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -362,7 +379,7 @@ export async function getPublishList(
  * published list.
  */
 export async function postPublishList(
-  req: Request,
+  req: PostPublishListRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -446,7 +463,7 @@ export async function postPublishList(
     // tell client to fetch published list
     io.emit(UPDATE_PUBLISHED_LIST) &&
       logger.debug("Sent request to update published list");
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -486,7 +503,7 @@ export async function getPublishedList(
     }
     uniqueList.sort((a, b) => a.tender_no - b.tender_no);
     next({ data: uniqueList, message: "Successfully fetched daily balances" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -496,7 +513,7 @@ export async function getPublishedList(
  * This function updates the status of a single trade and sends a request to update trading options.
  */
 export async function updatePublishedItemStatus(
-  req: Request,
+  req: UpdatePublishedItemStatusRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -518,14 +535,14 @@ export async function updatePublishedItemStatus(
     });
     const sent_request = await updateTradingOption();
     sent_request && logger.debug("Sent request to update trading option");
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
 export async function updatePublishedListItem(
-  req: Request,
+  req: UpdatePublishedListItemRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -540,11 +557,11 @@ export async function updatePublishedListItem(
     const query = { where: { tender_id }, returning: true };
 
     await updateDailyPublishByQuery(setQuery, query);
-    io.emit(UPDATE_PUBLISHED_LIST)
+    io.emit(UPDATE_PUBLISHED_LIST);
     next({
       message: "Updated published list item",
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -554,7 +571,7 @@ export async function updatePublishedListItem(
  * This function updates the status of all trades and sends a request to update trading options.
  */
 export async function updateAllTrade(
-  req: Request,
+  req: UpdateAllTradeRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -571,7 +588,7 @@ export async function updateAllTrade(
     });
     const sent_request = await updateTradingOption();
     sent_request && logger.debug("Sent request to update trading option");
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -582,7 +599,7 @@ export async function updateAllTrade(
  * list.
  */
 export async function updateSingleSaleRate(
-  req: Request,
+  req: UpdateSingleSaleRateRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -603,7 +620,7 @@ export async function updateSingleSaleRate(
     next({ message: "Updated sale rate for tender id " + tender_id });
     const request_sent = await updatePublishedList();
     request_sent && logger.debug(`Sent request to update published list`);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -614,7 +631,7 @@ export async function updateSingleSaleRate(
  * published list.
  */
 export async function updateAllSaleRate(
-  req: Request,
+  req: UpdateAllSaleRateRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -633,7 +650,7 @@ export async function updateAllSaleRate(
     next({ message: "Updated all sale rate" });
     const request_sent = await updatePublishedList();
     request_sent && logger.debug(`Sent request to update published list`);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -644,7 +661,7 @@ export async function updateAllSaleRate(
  * tender ID, and then sends a request to update the published list.
  */
 export async function modifySingleTrade(
-  req: Request,
+  req: ModifySingleTradeRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -660,7 +677,7 @@ export async function modifySingleTrade(
     next({ message: "Modified trade for tender id " + tender_id });
     const request_sent = await updatePublishedList();
     request_sent && logger.debug(`Sent request to update published list`);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -694,7 +711,7 @@ export async function getAllTradeStatus(
       }
     }
     next({ data: { stop_trading_option } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -702,7 +719,7 @@ export async function getAllTradeStatus(
 
 export function getAdminHome(req: Request, res: Response, next: NextFunction) {
   try {
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }

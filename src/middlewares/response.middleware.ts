@@ -1,4 +1,5 @@
 import { ErrorRequestHandler } from "express";
+import { ZodError } from "zod";
 
 const ApiResponse: ErrorRequestHandler = (err, req, res, next) => {
   if (err.status) {
@@ -6,7 +7,12 @@ const ApiResponse: ErrorRequestHandler = (err, req, res, next) => {
       success: false,
       error: err,
       status: err.status,
-      message: err.status === 422 ? err.message[0] : err.message,
+      message:
+        err.status === 422
+          ? err instanceof ZodError
+            ? err.issues[0].message
+            : err.message[0]
+          : err.message,
       data: null,
     });
     return;

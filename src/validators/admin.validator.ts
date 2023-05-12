@@ -1,109 +1,254 @@
-import Joi from "joi";
+import z from "zod";
 
-export const adminLoginReq = Joi.object({
-  body: Joi.object({
-    username: Joi.string().required(),
-    password: Joi.string().required(),
-  }).required(),
-}).required();
-
-export const updateAuthorizationReq = Joi.object({
-  body: Joi.object({
-    authorized: Joi.number().valid(0, 1).required(),
-  }).required(),
-  params: Joi.object({
-    userId: Joi.string().required(),
-  }).required(),
-}).required();
-
-export const addUserReq = Joi.object({
-  body: Joi.object({
-    userId: Joi.string().required(),
-  }).required(),
-}).required();
-
-export const mapClientReq = Joi.object({
-  body: Joi.object({
-    userId: Joi.string().required(),
-    accoid: Joi.number().required(),
-  }).required(),
-}).required();
-
-export const postPublishListReq = Joi.object({
-  body: Joi.object({
-    tender_no: Joi.number().required(),
-    tender_date: Joi.date().required(),
-    season: Joi.string().required(),
-    grade: Joi.string().required(),
-    quantal: Joi.number().required(),
-    lifting_date: Joi.date().required(),
-    purchase_rate: Joi.number().required(),
-    mill_rate: Joi.number().required(),
-    mc: Joi.number().required(),
-    pt: Joi.number().required(),
-    item_code: Joi.number().required(),
-    ic: Joi.number().required(),
-    tender_id: Joi.number().required(),
-    td: Joi.number().required(),
-    unit: Joi.string()
-      .valid(...["Q", "M", "L"])
+export const adminLoginReq = z
+  .object({
+    body: z
+      .object({
+        username: z.string({
+          required_error: "Username is required",
+        }),
+        password: z.string({
+          required_error: "Password is required",
+        }),
+      })
       .required(),
-    sale_rate: Joi.number().required(),
-    publish_quantal: Joi.number().required(),
-    multiple_of: Joi.number().required(),
-    auto_confirm: Joi.string()
-      .valid(...["Y", "N"])
+  })
+  .required();
+
+export const updateAuthorizationReq = z
+  .object({
+    body: z
+      .object({
+        userId: z.string({
+          required_error: "User id is required",
+          invalid_type_error: "User id must be a string",
+        }),
+        authorized: z
+          .number({
+            required_error: "Authorized is required",
+          })
+          .refine(
+            (authorizeCode) => authorizeCode === 0 || authorizeCode === 1,
+            "Invalid authorized code"
+          ),
+      })
       .required(),
-    tender_do: Joi.number().required(),
-    type: Joi.string()
-      .valid(...["F", "P"])
+    params: z
+      .object({
+        userId: z.string({
+          required_error: "User id is required",
+        }),
+      })
       .required(),
-    mill_code: Joi.number().required(),
-    payment_to: Joi.number().required(),
-  }).required(),
-}).required();
+  })
+  .required();
 
-export const updatePublishedListItemReq = Joi.object({
-  body: {
-    tender_id: Joi.number().required(),
-    status: Joi.string()
-      .valid(...["Y", "N"])
+export const addUserReq = z
+  .object({
+    body: z
+      .object({
+        userId: z.string({
+          required_error: "User id is required",
+        }),
+      })
       .required(),
-    sale_rate: Joi.number().required(),
-    published_qty: Joi.number().required(),
-  },
-}).required();
+  })
+  .required();
 
-export const updatePublishedItemStatusReq = Joi.object({
-  body: Joi.object({
-    tender_id: Joi.number().required(),
-    status: Joi.string().required().valid("Y", "N"),
-  }).required(),
-}).required();
+export const mapClientReq = z
+  .object({
+    body: z
+      .object({
+        userId: z.string({
+          required_error: "User id is required",
+        }),
+        accoid: z.number({
+          required_error: "Accoid is required",
+        }),
+      })
+      .required(),
+  })
+  .required();
 
-export const updateAllTradeReq = Joi.object({
-  body: Joi.object({
-    status: Joi.string().required().valid("Y", "N"),
-  }).required(),
-}).required();
+export const postPublishListReq = z
+  .object({
+    body: z
+      .object({
+        tender_no: z.number({
+          required_error: "Tender number is required",
+        }),
+        tender_date: z
+          .string({
+            required_error: "Tender date is required",
+          })
+          .transform((date) => new Date(date)),
+        season: z.string({
+          required_error: "Season is required",
+        }),
+        grade: z.string({
+          required_error: "Grade is required",
+        }),
+        quantal: z.number({
+          required_error: "Quantal is required",
+          invalid_type_error: "Quantal must be a number",
+        }),
+        lifting_date: z
+          .string({
+            required_error: "Lifting date is required",
+            invalid_type_error: "Lifting date must be a date",
+          })
+          .transform((date) => new Date(date)),
+        purchase_rate: z.number({
+          required_error: "Purchase rate is required",
+          invalid_type_error: "Purchase rate must be a number",
+        }),
+        mill_rate: z.number({
+          required_error: "Mill rate is required",
+          invalid_type_error: "Mill rate must be a number",
+        }),
+        mc: z.number(),
+        pt: z.number(),
+        item_code: z.number(),
+        ic: z.number(),
+        tender_id: z.number({
+          required_error: "Tender id is required",
+        }),
+        td: z.number(),
+        unit: z
+          .string({
+            required_error: "Unit is required",
+          })
+          .refine((unit) => ["Q", "M", "L"].includes(unit), "Invalid unit"),
+        sale_rate: z.number({
+          required_error: "Sale rate is required",
+          invalid_type_error: "Sale rate must be a number",
+        }),
+        publish_quantal: z.number({
+          required_error: "Publish quantal is required",
+          invalid_type_error: "Publish quantal must be a number",
+        }),
+        multiple_of: z.number({
+          required_error: "Multiple of is required",
+          invalid_type_error: "Multiple of must be a number",
+        }),
+        auto_confirm: z
+          .string()
+          .refine((ac) => ["Y", "N"].includes(ac), "Invalid auto confirm code"),
+        tender_do: z.number(),
+        type: z
+          .string({
+            required_error: "Submit type is required",
+          })
+          .refine((type) => ["F", "P"].includes(type)),
+        mill_code: z.number(),
+        payment_to: z.number(),
+      })
+      .required(),
+  })
+  .required();
 
-export const updateSingleSaleRateReq = Joi.object({
-  body: Joi.object({
-    tender_id: Joi.number().required(),
-    sale_rate: Joi.number().required(),
-  }).required(),
-}).required();
+export const updatePublishedListItemReq = z
+  .object({
+    body: z
+      .object({
+        tender_id: z.number({
+          required_error: "Tender id is required",
+          invalid_type_error: "Tender id must be a number",
+        }),
+        status: z
+          .string({
+            required_error: "Status is required",
+            invalid_type_error: "Status must be a string",
+          })
+          .refine(
+            (status) => ["Y", "N"].includes(status),
+            "Invalid status type"
+          ),
+        sale_rate: z
+          .string({
+            required_error: "Sale rate is required",
+          })
+          .regex(/^\d+$/, "Sale rate must be a number")
+          .transform((sr) => parseFloat(sr))
+          .or(z.number()),
+        published_qty: z
+          .string({
+            required_error: "Published qty is required",
+          })
+          .regex(/^\d+$/, "Published qty must be a number")
+          .transform((sr) => parseFloat(sr))
+          .or(z.number()),
+      })
+      .required(),
+  })
+  .required();
 
-export const updateAllSaleRateReq = Joi.object({
-  body: Joi.object({
-    sale_rate: Joi.number().required(),
-  }).required(),
-}).required();
+export const updatePublishedItemStatusReq = z
+  .object({
+    body: z.object({
+      tender_id: z.number({
+        required_error: "Tender id is required",
+        invalid_type_error: "Tender id must be a number",
+      }),
+      status: z
+        .string({
+          required_error: "Status is required",
+          invalid_type_error: "Status must be a string",
+        })
+        .refine((status) => ["Y", "N"].includes(status)),
+    }),
+  })
+  .required();
 
-export const modifySingleTradeReq = Joi.object({
-  body: Joi.object({
-    tender_id: Joi.number().required(),
-    published_qty: Joi.number().required(),
-    sale_rate: Joi.number().required(),
-  }).required(),
-}).required();
+export const updateAllTradeReq = z
+  .object({
+    body: z.object({
+      status: z.string().refine((status) => ["Y", "N"].includes(status)),
+    }),
+  })
+  .required();
+
+export const updateSingleSaleRateReq = z
+  .object({
+    body: z.object({
+      tender_id: z.number(),
+      sale_rate: z.number(),
+    }),
+  })
+  .required();
+
+export const updateAllSaleRateReq = z
+  .object({
+    body: z.object({
+      sale_rate: z.number(),
+    }),
+  })
+  .required();
+
+export const modifySingleTradeReq = z
+  .object({
+    body: z.object({
+      tender_id: z.number(),
+      published_qty: z.number(),
+      sale_rate: z.number(),
+    }),
+  })
+  .required();
+
+export type AdminLoginRequest = z.infer<typeof adminLoginReq>;
+export type UpdateAuthorizationRequest = z.infer<typeof updateAuthorizationReq>;
+export type AddUserRequest = z.infer<typeof addUserReq>;
+export type MapClientRequest = z.infer<typeof mapClientReq>;
+export type PostPublishListRequest = z.infer<typeof postPublishListReq>;
+export type UpdatePublishedListItemRequest = z.infer<
+  typeof updatePublishedListItemReq
+>;
+export type UpdatePublishedItemStatusRequest = z.infer<
+  typeof updatePublishedItemStatusReq
+>;
+export type UpdateAllTradeRequest = z.infer<typeof updateAllTradeReq>;
+export type UpdateSingleSaleRateRequest = z.infer<
+  typeof updateSingleSaleRateReq
+>;
+export type UpdateAllSaleRateRequest = z.infer<typeof updateAllSaleRateReq>;
+export type ModifySingleTradeRequest = z.infer<typeof modifySingleTradeReq>;

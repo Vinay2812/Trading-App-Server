@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateRequest } from "../middlewares/validator.middleware";
+import { validate } from "../middlewares/validator.middleware";
 import {
   getTodos,
   getTodo,
@@ -24,15 +24,15 @@ import {
 const router = Router();
 
 // todos
-router.get("/all/:user_id", validateRequest(getTodosReq), getTodos);
-router.get("/:todo_id", validateRequest(getTodoReq), getTodo);
-router.post("/", validateRequest(postTodoReq), postTodo);
-router.patch("/", validateRequest(updateTodoReq), updateTodo);
-router.delete("/", validateRequest(deleteTodoReq), deleteTodo);
+router.get("/all/:user_id", validate(getTodosReq), getTodos);
+router.get("/:todo_id", validate(getTodoReq), getTodo);
+router.post("/", validate(postTodoReq), postTodo);
+router.patch("/", validate(updateTodoReq), updateTodo);
+router.delete("/", validate(deleteTodoReq), deleteTodo);
 
 // sub-todos
-router.post("/sub-todo", validateRequest(postSubTodoReq), postSubTodo);
-router.patch("/sub-todo", validateRequest(updateSubTodoReq), updateSubTodo);
-router.delete("/sub-todo", validateRequest(deleteSubTodoReq), deleteSubTodo);
+router.post("/sub-todo", validate(postSubTodoReq), postSubTodo);
+router.patch("/sub-todo", validate(updateSubTodoReq), updateSubTodo);
+router.delete("/sub-todo", validate(deleteSubTodoReq), deleteSubTodo);
 
 export default router;

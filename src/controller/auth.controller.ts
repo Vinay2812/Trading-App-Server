@@ -18,8 +18,8 @@ import {
 } from "../utils/cache";
 import { Op } from "sequelize";
 import { Request, Response, NextFunction } from "express";
-import { RegisterRequest } from "../types/auth.request";
 import { UserOnlineDetailsInterface } from "../models/users/users.model";
+import { LoginRequest, RegisterRequest, SendOTPRequest, ValidateOTPRequest } from "../validators/auth.validator";
 
 const sendOtpByEmail = async (email: string) => {
   const otp = getRandomOtp();
@@ -29,11 +29,11 @@ const sendOtpByEmail = async (email: string) => {
 };
 
 export async function register(
-  req: Request,
+  req: RegisterRequest,
   res: Response,
   next: NextFunction
 ) {
-  const { userData, bankData, contactData }: RegisterRequest = req.body;
+  const { userData, bankData, contactData } = req.body;
   try {
     let check_user_query = {
       attributes: ["userId"],
@@ -79,13 +79,13 @@ export async function register(
         return createUserContactDetailsByQuery(insertContactData);
       }),
     ]);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
-export async function login(req: Request, res: Response, next: NextFunction) {
+export async function login(req: LoginRequest, res: Response, next: NextFunction) {
   const { mobile, company_name, password } = req.body;
   try {
     const getUserDataQuery = {
@@ -107,14 +107,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       }
     }
     next({ data: { userData }, message: "Login successful" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
 export async function validateOTP(
-  req: Request,
+  req: ValidateOTPRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -130,13 +130,13 @@ export async function validateOTP(
       message: "Otp validation was successfull",
     });
     deleteCache(cacheKey);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
-export async function sendOTP(req: Request, res: Response, next: NextFunction) {
+export async function sendOTP(req: SendOTPRequest, res: Response, next: NextFunction) {
   const { email } = req.body;
   try {
     const email_before = email.split("@")[0];
@@ -149,7 +149,7 @@ export async function sendOTP(req: Request, res: Response, next: NextFunction) {
       data: { otp_sent: true },
       message: `Otp sent successfully to ${email_hidden}.\nOtp will be valid for 5 minutes`,
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -164,7 +164,7 @@ export async function getOTP(req: Request, res: Response, next: NextFunction) {
       throw createHttpError.NotFound("Otp not found");
     }
     next({ message: "valid user" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }

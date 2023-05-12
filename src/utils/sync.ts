@@ -16,34 +16,34 @@ export default function syncMssql() {
     logging: false,
     alter: false,
   };
-  UserOnlineDetails.sync(options).catch((err) =>
+  UserOnlineDetails.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync online user details " + err)
   );
-  UserBankDetails.sync(options).catch((err) =>
+  UserBankDetails.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync user bank details " + err)
   );
-  UserContactDetails.sync(options).catch((err) =>
+  UserContactDetails.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync user contact details " + err)
   );
-  AccountMaster.sync(options).catch((err) =>
+  AccountMaster.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync nt_1_accountmaster " + err)
   );
-  AppErrors.sync(options).catch((err) =>
+  AppErrors.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync trading_app_errors " + err)
   );
-  DailyPublish.sync(options).catch((err) =>
+  DailyPublish.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync tr daily publish " + err)
   );
-  AdminProfile.sync(options).catch((err) =>
+  AdminProfile.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync admin profile " + err)
   );
-  DashboardUser.sync(options).catch((err) =>
+  DashboardUser.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync dashboard user " + err)
   );
-  Todos.sync(options).catch((err) =>
+  Todos.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync todos " + err)
   );
-  SubTodos.sync(options).catch((err) =>
+  SubTodos.sync(options).catch((err: Error | any) =>
     logger.error("failed to sync sub todos " + err)
   );
 }

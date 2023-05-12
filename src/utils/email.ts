@@ -26,7 +26,7 @@ export default async function sendEmail(email: string, otp: string) {
             `,
     });
     return res;
-  } catch (err) {
+  } catch (err: Error | any) {
     return err;
   }
 }

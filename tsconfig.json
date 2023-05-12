@@ -14,7 +14,8 @@
       },
       "typeRoots": ["custom_typings", "node_modules/@types"],
       "resolveJsonModule": true,
-      "skipLibCheck": true
+      "skipLibCheck": true,
+      "strict": true
   },
   "include": ["src/**/*"]
 }

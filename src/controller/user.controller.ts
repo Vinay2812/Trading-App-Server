@@ -14,9 +14,16 @@ import {
   UserContactDetailsInterface,
   UserOnlineDetailsInterface,
 } from "../models/users/users.model";
+import {
+  GetOnlineUserCompaniesRequest,
+  GetUserByIdRequest,
+  GetUserFromAccountMasterRequest,
+  GetUserRequest,
+  UpdatePasswordRequest,
+} from "../validators/user.validator";
 
 export async function updatePassword(
-  req: Request,
+  req: UpdatePasswordRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -49,13 +56,17 @@ export async function updatePassword(
       message: "Password updated successfully",
       data: { userData: user },
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
-export async function getUser(req: Request, res: Response, next: NextFunction) {
+export async function getUser(
+  req: GetUserRequest,
+  res: Response,
+  next: NextFunction
+) {
   const { company_name, mobile } = req.query;
   try {
     const getUserQuery = {
@@ -71,14 +82,14 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     }
     const userData = queryOutput[0];
     next({ data: { userData }, message: "Fetched user successfully" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
 export async function getOnlineUserCompanies(
-  req: Request,
+  req: GetOnlineUserCompaniesRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -91,14 +102,14 @@ export async function getOnlineUserCompanies(
     let queryResponse = await getOnlineUsersByQuery(getCompaniesQuery);
     let companies = queryResponse.map(({ company_name }) => company_name);
     next({ data: { companies }, message: "Companies fetched successfully" });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
 }
 
 export async function getUserById(
-  req: Request,
+  req: GetUserByIdRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -117,7 +128,7 @@ export async function getUserById(
       message: "User fetched successfully",
     };
     next(response);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -141,7 +152,7 @@ export async function getAllAccountMasterCompanyName(
       data: { companies },
       message: "Companies name fetched from account",
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -169,7 +180,7 @@ export async function getUserFromAccountMaster(
       },
     };
     next(response);
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -234,9 +245,9 @@ export async function getAllUsersData(
     for (let bankDetail of bankDetails) {
       if (userDataMap.has(bankDetail.userId)) {
         userDataMap.set(bankDetail.userId, {
-          ...userDataMap.get(bankDetail.userId),
+          ...userDataMap.get(bankDetail.userId)!,
           bankDetails: [
-            ...userDataMap.get(bankDetail.userId).bankDetails,
+            ...userDataMap.get(bankDetail.userId)!.bankDetails,
             bankDetail,
           ],
         });
@@ -246,9 +257,9 @@ export async function getAllUsersData(
     for (let contactDetail of contactDetails) {
       if (userDataMap.has(contactDetail.userId)) {
         userDataMap.set(contactDetail.userId, {
-          ...userDataMap.get(contactDetail.userId),
+          ...userDataMap.get(contactDetail.userId)!,
           contactDetails: [
-            ...userDataMap.get(contactDetail.userId).contactDetails,
+            ...userDataMap.get(contactDetail.userId)!.contactDetails,
             contactDetail,
           ],
         });
@@ -260,7 +271,7 @@ export async function getAllUsersData(
       data: { userData },
       message: "Successfully fetched all users data",
     });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
   }

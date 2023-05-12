@@ -8,7 +8,7 @@ RedisClient.on("connect", () => {
   logger.info(`🚀 [redis]: running on ${REDIS_URL}`);
 });
 
-RedisClient.on("error", (err) => {
+RedisClient.on("error", (err: Error | any) => {
   logger.error(`❌ [redis]: unable to connect ${REDIS_URL}`);
   console.log(err);
 });

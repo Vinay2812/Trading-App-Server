@@ -30,12 +30,12 @@ import {
   updatePublishedItemStatusReq,
   updatePublishedListItemReq,
 } from "../validators/admin.validator";
-import { validateRequest } from "../middlewares/validator.middleware";
+import { validate } from "../middlewares/validator.middleware";
 
 const router = Router();
 
 // admin login
-router.post("/login", validateRequest(adminLoginReq), adminLogin);
+router.post("/login", validate(adminLoginReq), adminLogin);
 
 // admin home
 router.get("/home", getAdminHome);
@@ -43,17 +43,17 @@ router.get("/home", getAdminHome);
 router.get("/registration-list/users", getRegistrationListUsers);
 router.patch(
   "/registration-list/:userId/authorization",
-  validateRequest(updateAuthorizationReq),
+  validate(updateAuthorizationReq),
   updateAuthorization
 );
 router.post(
   "/registration-list/add-user",
-  validateRequest(addUserReq),
+  validate(addUserReq),
   addUser
 );
 router.post(
   "/registration-list/map-client",
-  validateRequest(mapClientReq),
+  validate(mapClientReq),
   mapClient
 );
 
@@ -61,7 +61,7 @@ router.post(
 router.get("/publish-list", getPublishList);
 router.post(
   "/publish-list",
-  validateRequest(postPublishListReq),
+  validate(postPublishListReq),
   postPublishList
 );
 
@@ -69,32 +69,32 @@ router.post(
 router.get("/published-list", getPublishedList);
 router.patch(
   "/published-list/status",
-  validateRequest(updatePublishedItemStatusReq),
+  validate(updatePublishedItemStatusReq),
   updatePublishedItemStatus
 );
 router.patch(
   "/published-list/item",
-  validateRequest(updatePublishedListItemReq),
+  validate(updatePublishedListItemReq),
   updatePublishedListItem
 );
 router.patch(
   "/published-list/status/all",
-  validateRequest(updateAllTradeReq),
+  validate(updateAllTradeReq),
   updateAllTrade
 );
 router.patch(
   "/published-list/sale_rate",
-  validateRequest(updateSingleSaleRateReq),
+  validate(updateSingleSaleRateReq),
   updateSingleSaleRate
 );
 router.patch(
   "/published-list/sale_rate/all",
-  validateRequest(updateAllSaleRateReq),
+  validate(updateAllSaleRateReq),
   updateAllSaleRate
 );
 router.patch(
   "/published-list/update",
-  validateRequest(modifySingleTradeReq),
+  validate(modifySingleTradeReq),
   modifySingleTrade
 );
 router.get("/published-list/status/all", getAllTradeStatus);

@@ -13,15 +13,15 @@ import {
   validateOTPReq,
 } from "../validators/auth.validator";
 const router = Router();
-import { validateRequest } from "../middlewares/validator.middleware";
+import { validate } from "../middlewares/validator.middleware";
 
 // authentication
-router.post("/register", validateRequest(registerReq), register);
-router.post("/login", validateRequest(loginReq), login);
+router.post("/register", validate(registerReq), register);
+router.post("/login", validate(loginReq), login);
 
 // otp
-router.post("/send-otp", validateRequest(sendOTPReq), sendOTP);
+router.post("/send-otp", validate(sendOTPReq), sendOTP);
 router.get("/otp/:userId", getOTP);
-router.post("/validate-otp", validateRequest(validateOTPReq), validateOTP);
+router.post("/validate-otp", validate(validateOTPReq), validateOTP);
 
 export default router;

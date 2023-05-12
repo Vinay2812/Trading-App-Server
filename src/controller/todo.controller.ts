@@ -19,7 +19,7 @@ export async function getTodo(req: Request, res: Response, next: NextFunction) {
       },
     });
     next({ message: "Todo found", data: { todo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -45,7 +45,7 @@ export async function postTodo(
     });
 
     next({ message: "Todo created", data: { todo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -66,7 +66,7 @@ export async function updateTodo(
         description,
         status,
         priority,
-        dueDate
+        dueDate,
       },
       {
         where: {
@@ -75,7 +75,7 @@ export async function updateTodo(
       }
     );
     next({ message: "Todo updated", data: { todo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -96,7 +96,7 @@ export async function deleteTodo(
       },
     });
     next({ message: "Todo deleted", data: { todo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -134,7 +134,7 @@ export async function getTodos(
     const todoMap = new Map<string, ResponseType>();
 
     for (const todo of allTodos) {
-      todoMap.set(todo.todoId, { todo, subTodos: [] });
+      if (todo.todoId) todoMap.set(todo.todoId, { todo, subTodos: [] });
     }
 
     for (const subTodo of allSubTodos) {
@@ -147,7 +147,7 @@ export async function getTodos(
     response = Array.from(todoMap.values());
 
     next({ message: "Todos fetched", data: { todos: response } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -169,11 +169,11 @@ export async function postSubTodo(
       description,
       status,
       priority,
-      dueDate
+      dueDate,
     });
 
     next({ message: "SubTodo created", data: { subTodo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -187,14 +187,15 @@ export async function updateSubTodo(
   next: NextFunction
 ) {
   try {
-    const { subTodoId, title, description, status, priority, dueDate } = req.body;
+    const { subTodoId, title, description, status, priority, dueDate } =
+      req.body;
     const subTodo = await updateTodoByQuery(
       {
         title,
         description,
         status,
         priority,
-        dueDate
+        dueDate,
       },
       {
         where: {
@@ -203,7 +204,7 @@ export async function updateSubTodo(
       }
     );
     next({ message: "SubTodo updated", data: { subTodo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -224,7 +225,7 @@ export async function deleteSubTodo(
       },
     });
     next({ message: "SubTodo deleted", data: { subTodo } });
-  } catch (err) {
+  } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
