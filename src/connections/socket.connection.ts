@@ -1,15 +1,19 @@
-import { SOCKET_PORT, SERVER_URL } from "../utils/config";
-import logger from "../utils/logger";
-import { createServer } from "http";
 import { Server } from "socket.io";
+import { server } from "./server.connection";
+import logger from "../utils/logger";
 
-const httpServer = createServer();
-const io = new Server(httpServer, {
-  cors: "*" as any,
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
 });
 
-httpServer.listen(SOCKET_PORT, () =>
-  logger.info(`🚀 [socket]: running on ${SERVER_URL}:${SOCKET_PORT}`)
-);
+io.on("connection", (socket) => {
+  logger.info(`[socket]: ${socket.id} user connected`);
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  });
+});
 
 export default io;

@@ -1,11 +1,14 @@
+// connections (sequence imp)
+import "./connections/socket.connection";
+import { app } from "./connections/server.connection";
+import "./connections/mssql.connection";
+import "./connections/redis.connection";
+
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import morgan from "morgan";
-
-// connections
-
 
 // routes
 import AuthRoute from "./routes/auth.route";
@@ -16,15 +19,12 @@ import InvalidRoute from "./routes/invalid.route";
 import TodoRoute from "./routes/todo.route";
 
 // utils
-import { SERVER_PORT, SERVER_URL } from "./utils/config";
-import logger from "./utils/logger";
+// sync with mssql
 import syncMssql from "./utils/sync";
+syncMssql();
 
 // middlewares
 import { ApiResponse } from "./middlewares/response.middleware";
-
-const app = express();
-const port = SERVER_PORT;
 
 // middlewares
 app.use(
@@ -60,12 +60,3 @@ app.use(InvalidRoute);
 
 // response middleware
 app.use(ApiResponse);
-
-function startServer() {
-  logger.info(`🚀 [server]: running on ${SERVER_URL}:${port}`);
-  require("./connections/index");
-  syncMssql();
-}
-app.listen(port, () => {
-  startServer();
-});

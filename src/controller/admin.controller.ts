@@ -22,6 +22,8 @@ import {
 } from "../socket/controller/emit";
 import { NextFunction, Request, Response } from "express";
 import { UpdatePublishedListItemReqType } from "../validators/admin.validator";
+import io from "../connections/socket.connection";
+import { UPDATE_PUBLISHED_LIST } from "../utils/socket-emits";
 
 /**
  * This is an async function that handles admin login by checking the username and password provided in
@@ -441,9 +443,10 @@ export async function postPublishList(
     // insert into daily publish
     await createDailyPublishByQuery(insertData);
     next({ message: "Successfully inserted into published list" });
-    // tell client to fetch daily publish
-    let sent_request = await updatePublishedList();
-    sent_request && logger.debug("Sent request to update published list");
+
+    // tell client to fetch published list
+    io.emit(UPDATE_PUBLISHED_LIST) &&
+      logger.debug("Sent request to update published list");
   } catch (err) {
     if (!err.status) err.status = 500;
     next(err);
@@ -538,6 +541,7 @@ export async function updatePublishedListItem(
     const query = { where: { tender_id }, returning: true };
 
     await updateDailyPublishByQuery(setQuery, query);
+    io.emit(UPDATE_PUBLISHED_LIST)
     next({
       message: "Updated published list item",
     });
