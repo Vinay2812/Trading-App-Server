@@ -1,0 +1,19 @@
+SELECT
+  *
+FROM
+  NT_1_qrySugarDetails1
+UNION
+SELECT
+  *
+FROM
+  NT_1_qrySugarReturnSaleDetails1
+UNION
+SELECT
+  *
+FROM
+  NT_1_qryDebitdetails
+UNION
+SELECT
+  *
+FROM
+  NT_1_SugarRetailBill;

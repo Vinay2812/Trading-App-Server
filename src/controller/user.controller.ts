@@ -2,7 +2,7 @@ import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 import {
-  getAccountMasterByQuery,
+  getManyAccountMasterByQuery,
   getOnlineUsersByQuery,
   getUserBankContactByQuery,
   getUserBankDetailsByQuery,
@@ -147,7 +147,7 @@ export async function getAllAccountMasterCompanyName(
       },
       order: [["ac_name_e", "asc"]],
     };
-    const companies = await getAccountMasterByQuery(getCompanyNamesQuery);
+    const companies = await getManyAccountMasterByQuery(getCompanyNamesQuery);
     next({
       data: { companies },
       message: "Companies name fetched from account",
@@ -169,7 +169,7 @@ export async function getUserFromAccountMaster(
       attributes: ["accoid", "ac_code", "ac_name_e", "address_e", "gst_no"],
       where: { accoid },
     };
-    const userData = await getAccountMasterByQuery(getUserQuery);
+    const userData = await getManyAccountMasterByQuery(getUserQuery);
     if (!userData?.length) {
       throw createHttpError.NotFound("User not found");
     }
@@ -227,9 +227,9 @@ export async function getAllUsersData(
       where: { userId: { [Op.in]: userIds } },
     };
 
-    const mappedUserIds = (await getAccountMasterByQuery(isMappedQuery)).map(
-      ({ userId }) => userId
-    );
+    const mappedUserIds = (
+      await getManyAccountMasterByQuery(isMappedQuery)
+    ).map(({ userId }) => userId);
     let userDataMap = new Map<string, UserData>();
 
     for (let user of users) {

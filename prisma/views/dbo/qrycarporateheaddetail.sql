@@ -1,0 +1,41 @@
+SELECT
+  dbo.qrycarporatehead.doc_no,
+  dbo.qrycarporatehead.doc_date,
+  dbo.qrycarporatehead.ac_code,
+  dbo.qrycarporatehead.unit_code,
+  dbo.qrycarporatehead.broker,
+  dbo.qrycarporatehead.pono,
+  dbo.qrycarporatehead.quantal,
+  dbo.qrycarporatehead.sell_rate,
+  dbo.qrycarporatehead.remark,
+  dbo.qrycarporatehead.company_code,
+  dbo.qrycarporatehead.carpid,
+  dbo.qrycarporatehead.created_by,
+  dbo.qrycarporatehead.modified_by,
+  dbo.qrycarporatehead.ac,
+  dbo.qrycarporatehead.uc,
+  dbo.qrycarporatehead.br,
+  dbo.qrycarporatehead.selling_type,
+  dbo.qrycarporatehead.carporatepartyaccountname,
+  dbo.qrycarporatehead.carporatepartyunitname,
+  dbo.qrycarporatehead.carporatepartybrokername,
+  dbo.carporatedetail.schedule_date,
+  CONVERT(
+    varchar(10),
+    dbo.carporatedetail.schedule_date,
+    103
+  ) AS schedule_dateConverted,
+  dbo.carporatedetail.scheduale_qntl,
+  dbo.carporatedetail.transit_days,
+  dbo.carporatedetail.carpdetailid,
+  dbo.qrycarporatehead.doc_dateConverted,
+  dbo.qrycarporatehead.Commission,
+  dbo.carporatedetail.detail_Id,
+  dbo.qrycarporatehead.bill_to,
+  dbo.qrycarporatehead.bt,
+  dbo.qrycarporatehead.carporatebilltoname,
+  dbo.qrycarporatehead.DeliveryType,
+  dbo.qrycarporatehead.CommissionRate
+FROM
+  dbo.qrycarporatehead
+  LEFT JOIN dbo.carporatedetail ON dbo.qrycarporatehead.carpid = dbo.carporatedetail.carpid;

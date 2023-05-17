@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { DB_NAME, DB_PASSWORD, DB_SERVER, DB_USER } from "../utils/config";
+import { DB_NAME, DB_PASSWORD, DB_SERVER, DB_USER } from "../utils/constants";
 import logger from "../utils/logger";
 
 const mssql = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {

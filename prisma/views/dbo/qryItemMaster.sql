@@ -1,0 +1,29 @@
+SELECT
+  System_Type,
+  System_Code,
+  System_Name_E,
+  System_Name_R,
+  System_Rate,
+  Purchase_AC,
+  Sale_AC,
+  Vat_AC,
+  Opening_Bal,
+  KgPerKatta,
+  Company_Code,
+  Year_Code,
+  Branch_Code,
+  Created_By,
+  Modified_By,
+  HSN,
+  Gst_Code,
+  MarkaSet,
+  Supercost,
+  Packing,
+  LodingGst,
+  MarkaPerc,
+  SuperPerc,
+  RatePer
+FROM
+  dbo.nt_1_systemmaster
+WHERE
+  (System_Type = 'I');

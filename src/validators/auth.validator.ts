@@ -1,5 +1,5 @@
 import z from "zod";
-import { OTP_LENGTH } from "../utils/config";
+import { OTP_LENGTH } from "../utils/constants";
 
 export const registerReq = z
   .object({
@@ -98,9 +98,11 @@ export const registerReq = z
                 account_name: z.string({
                   required_error: "Account name is required",
                 }),
-                account_number: z.string({
-                  required_error: "Account number is required",
-                }).regex(/^\d+$/, "Account number must only contain digits"),
+                account_number: z
+                  .string({
+                    required_error: "Account number is required",
+                  })
+                  .regex(/^\d+$/, "Account number must only contain digits"),
                 account_type: z.string({
                   required_error: "Account type is required",
                 }),

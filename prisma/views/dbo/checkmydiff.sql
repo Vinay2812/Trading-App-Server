@@ -1,0 +1,35 @@
+SELECT
+  TRAN_TYPE,
+  CASHCREDIT,
+  DOC_NO,
+  COMPANY_CODE,
+  YEAR_CODE,
+  SUM(
+    CASE
+      DRCR
+      WHEN 'D' THEN AMOUNT
+      WHEN 'C' THEN - AMOUNT
+    END
+  ) AS diff,
+  DOC_DATE
+FROM
+  dbo.nt_1_gledger
+WHERE
+  (TRAN_TYPE <> 'OP')
+GROUP BY
+  TRAN_TYPE,
+  CASHCREDIT,
+  DOC_NO,
+  COMPANY_CODE,
+  YEAR_CODE,
+  DOC_DATE
+HAVING
+  (
+    SUM(
+      CASE
+        DRCR
+        WHEN 'D' THEN AMOUNT
+        WHEN 'C' THEN - AMOUNT
+      END
+    ) <> 0
+  );

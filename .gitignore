@@ -10,6 +10,7 @@ data/.~lock.Vinay.xlsx#
 .idea
 .DS_Store
 .env
+.env.sample
 *.log
 debug/
 /.vscode

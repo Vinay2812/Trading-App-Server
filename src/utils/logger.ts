@@ -1,5 +1,5 @@
 import { createLogger, transports, format } from "winston";
-import { NODE_ENV } from "./config";
+import { NODE_ENV } from "./constants";
 
 const symbolMap: any = {
   debug: "\u001b[32m\u221A",

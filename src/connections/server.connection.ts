@@ -1,5 +1,5 @@
 import express from "express";
-import { SERVER_PORT, SERVER_URL } from "../utils/config";
+import { SERVER_PORT, SERVER_URL } from "../utils/constants";
 import logger from "../utils/logger";
 
 export const app = express();

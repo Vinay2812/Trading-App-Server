@@ -1,0 +1,19 @@
+SELECT
+  *
+FROM
+  qrysugarsalebillbalance
+UNION
+SELECT
+  *
+FROM
+  qrycommssionbillbalance
+UNION
+SELECT
+  *
+FROM
+  qrysugarsalereturnbalance
+UNION
+SELECT
+  *
+FROM
+  qrydebitnotesalebalanace;

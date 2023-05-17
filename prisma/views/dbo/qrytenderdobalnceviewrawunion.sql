@@ -1,0 +1,9 @@
+SELECT
+  *
+FROM
+  dbo.qrytenderdobalanceviewraw1
+UNION
+SELECT
+  *
+FROM
+  dbo.qrytenderdobalanceviewraw2;

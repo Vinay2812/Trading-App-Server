@@ -1,0 +1,51 @@
+SELECT
+  dbo.qrydofreight.tran_type,
+  dbo.qrydofreight.doc_no,
+  dbo.qrydofreight.doc_date,
+  dbo.qrydofreight.doc_dateConverted,
+  dbo.qrydofreight.mill_code,
+  dbo.qrydofreight.quantal,
+  dbo.qrydofreight.truck_no,
+  dbo.qrydofreight.Memo_Advance,
+  SUM(ISNULL(dbo.qryFrieghtReciept.Value, 0)) + SUM(ISNULL(dbo.qryFrieghtReciept.Adj_Value, 0)) AS Paid,
+  dbo.qrydofreight.Memo_Advance - SUM(ISNULL(dbo.qryFrieghtReciept.Value, 0)) + SUM(ISNULL(dbo.qryFrieghtReciept.Adj_Value, 0)) AS Balance,
+  dbo.qrydofreight.transport,
+  dbo.qrydofreight.transportname,
+  dbo.qrydofreight.doid,
+  dbo.qrydofreight.Year_Code,
+  dbo.qrydofreight.company_code,
+  dbo.qrydofreight.millshortname,
+  dbo.qrydofreight.salebillname,
+  dbo.qrydofreight.desp_type,
+  dbo.qrydofreight.tc,
+  dbo.qrydofreight.mc,
+  dbo.qrydofreight.SaleBillTo,
+  dbo.qrydofreight.sb,
+  dbo.qrydofreight.Delivery_Type
+FROM
+  dbo.qrydofreight
+  LEFT JOIN dbo.qryFrieghtReciept ON dbo.qrydofreight.doid = dbo.qryFrieghtReciept.Bill_Auto_Id
+WHERE
+  (dbo.qrydofreight.Delivery_Type = 'C')
+GROUP BY
+  dbo.qrydofreight.tran_type,
+  dbo.qrydofreight.doc_no,
+  dbo.qrydofreight.doc_date,
+  dbo.qrydofreight.doc_dateConverted,
+  dbo.qrydofreight.mill_code,
+  dbo.qrydofreight.quantal,
+  dbo.qrydofreight.truck_no,
+  dbo.qrydofreight.Memo_Advance,
+  dbo.qrydofreight.transport,
+  dbo.qrydofreight.transportname,
+  dbo.qrydofreight.doid,
+  dbo.qrydofreight.Year_Code,
+  dbo.qrydofreight.company_code,
+  dbo.qrydofreight.millshortname,
+  dbo.qrydofreight.salebillname,
+  dbo.qrydofreight.desp_type,
+  dbo.qrydofreight.tc,
+  dbo.qrydofreight.mc,
+  dbo.qrydofreight.SaleBillTo,
+  dbo.qrydofreight.sb,
+  dbo.qrydofreight.Delivery_Type;

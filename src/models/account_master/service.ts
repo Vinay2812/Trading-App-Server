@@ -1,29 +1,39 @@
-import { processQueryOutput } from "../../utils/query";
-import { AccountMaster, AccountMasterInterface } from "./account_master.model";
+import { Prisma } from "@prisma/client";
+import { AccountMaster } from "./account_master.model";
 
-export async function getAccountMasterByQuery(query: any = { where: {} }) {
-  let output = await AccountMaster.findAll(query);
-  return processQueryOutput.forFindAll<AccountMasterInterface>(output);
-}
-
-export async function updateAccountMasterByQuery(
-  set: any,
-  query: any = { where: {} }
+export async function getManyAccountMasterByQuery(
+  query: Prisma.AccountMasterFindManyArgs
 ) {
-  const [rows, data] = await AccountMaster.update(set, query);
-  const processedOutput = processQueryOutput.forUpdate(data);
-  return { rows_affected: rows, data: processedOutput };
+  return AccountMaster.findMany(query);
 }
 
-export async function createAccountMasterByQuery(
-  query: any,
-  options: any = { returning: true }
+export async function getOneAccountMasterByQuery(
+  query: Prisma.AccountMasterFindFirstArgs
 ) {
-  const data = await AccountMaster.create(query, options);
-  return processQueryOutput.forInsert(data);
+  return AccountMaster.findFirst(query);
 }
 
-export async function deleteAccountMasterByQuery(query: any = { where: {} }) {
-  const data = await AccountMaster.destroy(query);
-  return data;
+export async function updateOneAccountMasterByQuery(
+  query: Prisma.AccountMasterUpdateArgs
+) {
+  return AccountMaster.update(query);
 }
+
+export async function updateManyAccountMasterByQuery(
+  query: Prisma.AccountMasterUpdateManyArgs
+) {
+  return AccountMaster.updateMany(query);
+}
+
+// export async function createAccountMasterByQuery(
+//   query: any,
+//   options: any = { returning: true }
+// ) {
+//   const data = await AccountMaster.create(query, options);
+//   return processQueryOutput.forInsert(data);
+// }
+
+// export async function deleteAccountMasterByQuery(query: any = { where: {} }) {
+//   const data = await AccountMaster.destroy(query);
+//   return data;
+// }

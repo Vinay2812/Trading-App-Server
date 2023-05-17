@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { REDIS_URL } from "../utils/config";
+import { REDIS_URL } from "../utils/constants";
 import logger from "../utils/logger";
 
 const RedisClient = new Redis(REDIS_URL);

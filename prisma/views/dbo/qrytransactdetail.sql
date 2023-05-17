@@ -1,0 +1,52 @@
+SELECT
+  dbo.nt_1_transactdetail.Tran_Type,
+  dbo.nt_1_transactdetail.doc_no,
+  dbo.nt_1_transactdetail.detail_id,
+  dbo.nt_1_transactdetail.debit_ac,
+  dbo.nt_1_transactdetail.credit_ac,
+  dbo.nt_1_transactdetail.Unit_Code,
+  dbo.nt_1_transactdetail.amount,
+  dbo.nt_1_transactdetail.narration,
+  dbo.nt_1_transactdetail.narration2,
+  dbo.nt_1_transactdetail.Company_Code,
+  dbo.nt_1_transactdetail.Year_Code,
+  dbo.nt_1_transactdetail.Branch_Code,
+  dbo.nt_1_transactdetail.Created_By,
+  dbo.nt_1_transactdetail.Modified_By,
+  dbo.nt_1_transactdetail.Voucher_No,
+  dbo.nt_1_transactdetail.Voucher_Type,
+  dbo.nt_1_transactdetail.Adjusted_Amount,
+  dbo.nt_1_transactdetail.Tender_No,
+  dbo.nt_1_transactdetail.TenderDetail_ID,
+  dbo.nt_1_transactdetail.drpFilterValue,
+  dbo.nt_1_transactdetail.CreditAcAdjustedAmount,
+  dbo.nt_1_transactdetail.Branch_name,
+  dbo.nt_1_transactdetail.YearCodeDetail,
+  dbo.nt_1_transactdetail.tranid,
+  dbo.nt_1_transactdetail.ca,
+  dbo.nt_1_transactdetail.uc,
+  dbo.nt_1_transactdetail.tenderdetailid,
+  dbo.nt_1_transactdetail.sbid,
+  dbo.nt_1_transactdetail.da,
+  qrydb.Ac_Name_E AS debitname,
+  qrycb.Ac_Name_E AS creditname,
+  qryunit.Ac_Name_E AS unitname,
+  dbo.nt_1_transactdetail.trandetailid,
+  dbo.nt_1_transactdetail.drcr,
+  qrycb.Short_Name AS Shortcreditname,
+  dbo.qrytenderheaddetail.millshortname,
+  dbo.nt_1_transactdetail.AcadjAmt,
+  dbo.nt_1_transactdetail.AcadjAccode,
+  dbo.nt_1_transactdetail.ac AS ad,
+  dbo.nt_1_accountmaster.Ac_Name_E AS AcadjAcname,
+  dbo.nt_1_transactdetail.TDS_Rate,
+  dbo.nt_1_transactdetail.TDS_Amt,
+  dbo.nt_1_transactdetail.GRN,
+  dbo.nt_1_transactdetail.TReceipt
+FROM
+  dbo.nt_1_transactdetail
+  LEFT JOIN dbo.nt_1_accountmaster ON dbo.nt_1_transactdetail.ac = dbo.nt_1_accountmaster.accoid
+  LEFT JOIN dbo.qrytenderheaddetail ON dbo.nt_1_transactdetail.tenderdetailid = dbo.qrytenderheaddetail.tenderdetailid
+  LEFT JOIN dbo.qrymstaccountmaster AS qryunit ON dbo.nt_1_transactdetail.uc = qryunit.accoid
+  LEFT JOIN dbo.qrymstaccountmaster AS qrycb ON dbo.nt_1_transactdetail.ca = qrycb.accoid
+  LEFT JOIN dbo.qrymstaccountmaster AS qrydb ON dbo.nt_1_transactdetail.da = qrydb.accoid;

@@ -1,0 +1,41 @@
+SELECT
+  dbo.multiple_receipt_detail.Tran_Type,
+  dbo.multiple_receipt_detail.DOC_NO,
+  dbo.multiple_receipt_detail.mr_no,
+  dbo.multiple_receipt_detail.detail_Id,
+  dbo.multiple_receipt_detail.mrd_no,
+  dbo.multiple_receipt_detail.Bill_No,
+  dbo.multiple_receipt_detail.Bill_Tran_Type,
+  dbo.multiple_receipt_detail.Bill_Tran_Date,
+  dbo.multiple_receipt_detail.Party_Code,
+  dbo.multiple_receipt_detail.pc,
+  dbo.multiple_receipt_detail.Unit_code,
+  dbo.multiple_receipt_detail.uc,
+  dbo.multiple_receipt_detail.Mill_Code,
+  dbo.multiple_receipt_detail.mc,
+  dbo.multiple_receipt_detail.Quntal,
+  ISNULL(dbo.multiple_receipt_detail.Bill_Amount, 0) AS Bill_Amount,
+  dbo.multiple_receipt_detail.Bill_Receipt,
+  dbo.multiple_receipt_detail.Bill_Balance,
+  dbo.multiple_receipt_detail.Value,
+  dbo.multiple_receipt_detail.Adj_Value,
+  dbo.multiple_receipt_detail.Narration,
+  dbo.multiple_receipt_detail.Bill_Year_Code,
+  dbo.multiple_receipt_detail.Bill_Auto_Id,
+  dbo.multiple_receipt_detail.Year_Code,
+  dbo.multiple_receipt_detail.Doc_Date,
+  qrymstpartycode.Ac_Name_E AS partyname,
+  qrymstunitcode.Ac_Name_E AS unitname,
+  qrymstmillcode.Ac_Name_E AS millname,
+  dbo.multiple_receipt_detail.bill_comp_code,
+  dbo.multiple_receipt_detail.OnAc,
+  dbo.multiple_receipt_detail.AcadjAmt,
+  dbo.multiple_receipt_detail.AcAdjAc,
+  dbo.multiple_receipt_detail.LorryNo,
+  qrymstmillcode.Short_Name AS millshortname,
+  dbo.multiple_receipt_detail.Company_Code
+FROM
+  dbo.multiple_receipt_detail
+  LEFT JOIN dbo.qrymstaccountmaster AS qrymstunitcode ON dbo.multiple_receipt_detail.uc = qrymstunitcode.accoid
+  LEFT JOIN dbo.qrymstaccountmaster AS qrymstpartycode ON dbo.multiple_receipt_detail.pc = qrymstpartycode.accoid
+  LEFT JOIN dbo.qrymstaccountmaster AS qrymstmillcode ON dbo.multiple_receipt_detail.mc = qrymstmillcode.accoid;

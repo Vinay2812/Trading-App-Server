@@ -1,0 +1,33 @@
+SELECT
+  dbo.nt_1_gledger.TRAN_TYPE,
+  dbo.nt_1_gledger.CASHCREDIT,
+  dbo.nt_1_gledger.DOC_NO,
+  dbo.nt_1_gledger.DOC_DATE,
+  dbo.nt_1_gledger.AC_CODE,
+  dbo.nt_1_gledger.UNIT_Code,
+  dbo.nt_1_gledger.NARRATION,
+  dbo.nt_1_gledger.AMOUNT,
+  dbo.nt_1_gledger.TENDER_ID,
+  dbo.nt_1_gledger.TENDER_ID_DETAIL,
+  dbo.nt_1_gledger.VOUCHER_ID,
+  dbo.nt_1_gledger.COMPANY_CODE,
+  dbo.nt_1_gledger.YEAR_CODE,
+  dbo.nt_1_gledger.ORDER_CODE,
+  dbo.nt_1_gledger.DRCR,
+  dbo.nt_1_gledger.DRCR_HEAD,
+  dbo.nt_1_gledger.ADJUSTED_AMOUNT,
+  dbo.nt_1_gledger.Branch_Code,
+  dbo.nt_1_gledger.SORT_TYPE,
+  dbo.nt_1_gledger.SORT_NO,
+  dbo.nt_1_gledger.ac,
+  dbo.nt_1_gledger.vc,
+  dbo.nt_1_gledger.progid,
+  dbo.nt_1_gledger.tranid,
+  dbo.nt_1_gledger.GId,
+  dbo.nt_1_gledger.saleid,
+  dbo.nt_1_accountmaster.Ac_Name_E
+FROM
+  dbo.nt_1_gledger
+  LEFT JOIN dbo.nt_1_accountmaster ON dbo.nt_1_gledger.ac = dbo.nt_1_accountmaster.accoid
+WHERE
+  (dbo.nt_1_gledger.DRCR = 'D');

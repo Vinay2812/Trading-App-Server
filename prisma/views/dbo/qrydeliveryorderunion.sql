@@ -1,0 +1,9 @@
+SELECT
+  dbo.qrydeliveryorder.*
+FROM
+  dbo.qrydeliveryorder
+UNION
+SELECT
+  *
+FROM
+  dbo.qrydeliveryorder2;

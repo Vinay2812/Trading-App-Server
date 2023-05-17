@@ -1,0 +1,20 @@
+SELECT
+  doc_no,
+  Tran_Type,
+  doc_date,
+  Ac_Code,
+  mill_code,
+  Bill_Amount,
+  Company_Code,
+  Year_Code,
+  purchaseid,
+  ac,
+  mc,
+  suppliername,
+  millname,
+  millshortname,
+  NETQNTL
+FROM
+  dbo.qrypurchasehead
+WHERE
+  (PURCNO = 0);

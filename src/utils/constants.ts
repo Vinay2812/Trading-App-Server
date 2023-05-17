@@ -14,6 +14,7 @@ const DB_SERVER: string = process.env.DB_SERVER!;
 const DB_USER: string = process.env.DB_USER!;
 const DB_PASSWORD: string = process.env.DB_PASSWORD!;
 const DB_NAME: string = process.env.DB_NAME!;
+const DATABASE_URL: string = process.env.DATABASE_URL!;
 
 // admin login
 const ADMIN_USERNAME: string = process.env.ADMIN_USERNAME!;
@@ -45,5 +46,6 @@ export {
   NODE_ENV,
   OTP_VALID_INTERVAL,
   SERVER_URL,
-  REDIS_URL
+  REDIS_URL,
+  DATABASE_URL,
 };
