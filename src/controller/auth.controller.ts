@@ -1,14 +1,6 @@
 import { getRandomId, getRandomOtp } from "../utils/random";
 import sendEmail from "../utils/email";
 import bcrypt from "bcrypt";
-import logger from "../utils/logger";
-import {
-  getOnlineUsersByQuery,
-  createOnlineUserByQuery,
-  createUserBankDetailsByQuery,
-  createUserContactDetailsByQuery,
-  updateOnlineUserByQuery,
-} from "../models/index";
 import createHttpError from "http-errors";
 import {
   deleteCache,
@@ -16,10 +8,18 @@ import {
   getOtpCacheKey,
   setCache,
 } from "../utils/cache";
-import { Op } from "sequelize";
 import { Request, Response, NextFunction } from "express";
-import { UserOnlineDetailsInterface } from "../models/users/users.model";
-import { LoginRequest, RegisterRequest, SendOTPRequest, ValidateOTPRequest } from "../validators/auth.validator";
+import {
+  LoginRequest,
+  RegisterRequest,
+  SendOTPRequest,
+  ValidateOTPRequest,
+} from "../validators/auth.validator";
+import {
+  UserBankDetails,
+  UserContactDetails,
+  UserProfile,
+} from "../utils/models";
 
 const sendOtpByEmail = async (email: string) => {
   const otp = getRandomOtp();
@@ -33,17 +33,17 @@ export async function register(
   res: Response,
   next: NextFunction
 ) {
-  const { userData, bankData, contactData } = req.body;
   try {
-    let check_user_query = {
-      attributes: ["userId"],
+    let { userData, bankData, contactData } = req.body;
+    const userExist = await UserProfile.findFirst({
       where: {
         company_name: userData.company_name,
-        mobile: userData.mobile,
       },
-    };
-    const userExist = await getOnlineUsersByQuery(check_user_query);
-    if (userExist?.length) {
+      select: {
+        userId: true,
+      },
+    });
+    if (userExist) {
       throw createHttpError.Conflict(
         "User already exist with this company and mobile"
       );
@@ -51,14 +51,15 @@ export async function register(
     const new_user_id = getRandomId();
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-    const insertUserData: UserOnlineDetailsInterface = {
-      ...userData,
-      authorized: "0",
-      userId: new_user_id,
-      password: hashedPassword,
-    };
-
-    const userDetails = await createOnlineUserByQuery(insertUserData);
+    const userDetails = await UserProfile.create({
+      data: {
+        ...userData,
+        pincode: parseInt(userData.pincode),
+        authorized: "0",
+        userId: new_user_id,
+        password: hashedPassword,
+      },
+    });
     next({
       data: {
         userData: userDetails,
@@ -69,14 +70,26 @@ export async function register(
 
     Promise.all([
       // insert all bank details
-      ...bankData.map((data: any) => {
-        const insertBankData = { ...data, userId };
-        return createUserBankDetailsByQuery(insertBankData);
+      ...bankData.map((bData) => {
+        return UserBankDetails.create({
+          data: {
+            account_number: parseInt(bData.account_number),
+            account_name: bData.account_name,
+            id: getRandomId(),
+            ifsc: bData.ifsc,
+            userId,
+            account_type: bData.account_type,
+            bank_name: bData.bank_name,
+            branch: bData.branch,
+          },
+        });
       }),
       // insert all contact details
-      ...contactData.map((data: any) => {
-        const insertContactData = { ...data, userId };
-        return createUserContactDetailsByQuery(insertContactData);
+      ...contactData.map((data) => {
+        const insertContactData = { ...data, userId, id: getRandomId() };
+        return UserContactDetails.create({
+          data: insertContactData,
+        });
       }),
     ]);
   } catch (err: Error | any) {
@@ -85,20 +98,23 @@ export async function register(
   }
 }
 
-export async function login(req: LoginRequest, res: Response, next: NextFunction) {
+export async function login(
+  req: LoginRequest,
+  res: Response,
+  next: NextFunction
+) {
   const { mobile, company_name, password } = req.body;
   try {
-    const getUserDataQuery = {
+    const userData = await UserProfile.findFirst({
       where: {
-        [Op.and]: [{ mobile }, { company_name }],
+        mobile,
+        company_name,
       },
-    };
-
-    const userDataArr = await getOnlineUsersByQuery(getUserDataQuery);
-    if (!userDataArr?.length) {
+    });
+    if (!userData) {
       throw createHttpError.NotFound("Invalid mobile or company name");
     }
-    let userData = userDataArr[0];
+
     if (userData.password) {
       const passwordMatched = await bcrypt.compare(password, userData.password);
       if (!passwordMatched) {
@@ -136,7 +152,11 @@ export async function validateOTP(
   }
 }
 
-export async function sendOTP(req: SendOTPRequest, res: Response, next: NextFunction) {
+export async function sendOTP(
+  req: SendOTPRequest,
+  res: Response,
+  next: NextFunction
+) {
   const { email } = req.body;
   try {
     const email_before = email.split("@")[0];

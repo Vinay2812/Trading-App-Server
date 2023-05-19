@@ -8,7 +8,7 @@ import {
   TenderBalanceView,
   DailyBalance,
   DailyPublish,
-} from "../models/models";
+} from "../utils/models";
 import { updateTradingOption } from "../socket/controller/emit";
 import { NextFunction, Request, Response } from "express";
 import io from "../connections/socket.connection";
@@ -325,11 +325,6 @@ export async function getPublishList(
   next: NextFunction
 ) {
   try {
-    /* The below code is defining a query object `getTenderDetailsQuery` that will be used to retrieve data
-    from a view called `getTenderBalanceByQuery`. The query specifies that the data should be
-    filtered to only include records where the `balance` field is greater than 0 and the `buyer` field
-    is equal to 2. The `await` keyword indicates that the data retrieval is asynchronous and the result
-    will be assigned to the `tenderBalances` variable. */
     const publishedTenderIds = (
       await DailyBalance.findMany({
         select: {
@@ -402,23 +397,35 @@ export async function postPublishList(
       );
     }
 
-    const publish_date = new Date().toISOString();
-    const insertData = {
-      ...req.body,
-      publish_date,
-      it: req.body.ic,
-      doac: req.body.tender_do,
-      doid: req.body.td,
-      qty: req.body.quantal,
-      purc_rate: req.body.purchase_rate,
-      published_qty: req.body.publish_quantal,
-      selling_type: req.body.type,
-      status: "Y",
-    };
     // insert into daily publish
-
     await DailyPublish.create({
-      data: insertData,
+      data: {
+        tender_no: req.body.tender_no,
+        tender_id: req.body.tender_id,
+        tender_date: req.body.tender_date,
+        publish_date: new Date().toISOString(),
+        lifting_date: req.body.lifting_date,
+        mill_code: req.body.mill_code,
+        mc: req.body.mc,
+        item_code: req.body.item_code,
+        it: req.body.ic,
+        payment_to: req.body.payment_to,
+        pt: req.body.pt,
+        doac: req.body.tender_do,
+        doid: req.body.td,
+        season: req.body.season,
+        grade: req.body.grade,
+        unit: req.body.unit,
+        qty: parseFloat(req.body.quantal),
+        mill_rate: parseFloat(req.body.mill_rate),
+        purc_rate: parseFloat(req.body.purchase_rate),
+        sale_rate: parseFloat(req.body.sale_rate.toString()),
+        published_qty: parseFloat(req.body.publish_quantal.toString()),
+        selling_type: req.body.type,
+        multiple_of: parseInt(req.body.multiple_of.toString()),
+        auto_confirm: req.body.auto_confirm,
+        status: "Y",
+      },
     });
 
     next({ message: "Successfully inserted into published list" });
@@ -454,7 +461,6 @@ export async function getPublishedList(
         },
       ],
     });
-
     let uniqueKeys: number[] = [];
     let uniqueList = [];
     for (let ele of dailybalances || []) {
@@ -588,7 +594,7 @@ export function getAdminHome(req: Request, res: Response, next: NextFunction) {
 }
 
 /**
- * @deprecated
+ * !deprecated
  */
 export async function updateAllTrade(
   req: UpdateAllTradeRequest,
@@ -615,7 +621,7 @@ export async function updateAllTrade(
 }
 
 /**
- * @deprecated
+ * !deprecated
  */
 export async function updateSingleSaleRate(
   req: UpdateSingleSaleRateRequest,
@@ -639,7 +645,7 @@ export async function updateSingleSaleRate(
 }
 
 /**
- * @deprecated
+ * !deprecated
  */
 export async function updateAllSaleRate(
   req: UpdateAllSaleRateRequest,
@@ -662,7 +668,7 @@ export async function updateAllSaleRate(
 }
 
 /**
- * @deprecated
+ * !deprecated
  */
 export async function modifySingleTrade(
   req: ModifySingleTradeRequest,

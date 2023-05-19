@@ -4509,7 +4509,7 @@ model transactheaddummy {
 
 model trDailypublish {
   tender_no     Int?
-  tender_id     Int      @map("tenderid")
+  tender_id     Int       @map("tenderid")
   tender_date   DateTime? @db.Date
   publish_date  DateTime? @db.Date
   lifting_date  DateTime? @db.Date
@@ -4741,38 +4741,38 @@ view TenderBalanceView {
 }
 
 view DailyBalance {
-  tender_no          Int?      @map("tender_no")
-  tender_id          Int?      @map("tenderid")
-  tender_date        DateTime? @map("tender_date") @db.Date
-  published_qty      Decimal?  @map("published_qty") @db.Decimal(18, 2)
-  publish_date       DateTime? @map("publish_date") @db.Date
-  lifting_date       DateTime? @map("lifting_date") @db.Date
-  mill_code          Int?      @map("mill_code")
-  mc                 Int?      @map("mc")
-  payment_to         Int?      @map("payment_to")
-  item_code          Int?      @map("item_code")
-  it                 Int?      @map("it")
-  pt                 Int?      @map("pt")
-  doac               Int?
-  doid               Int?
-  season             String?   @map("season") @db.NVarChar(50)
-  grade              String?   @map("grade") @db.NVarChar(50)
-  unit               String?   @map("unit") @db.Char(1)
-  qty                Decimal?  @db.Decimal(18, 2)
-  mill_rate          Decimal?  @map("mill_rate") @db.Decimal(18, 2)
-  sale_rate          Decimal?  @map("sale_rate") @db.Decimal(18, 2)
-  purc_rate          Decimal?  @db.Decimal(18, 2)
-  selling_type       String?   @map("selling_type") @db.Char(1)
-  multipal_of        Int?
-  auto_confirm       String?   @map("auto_confirm") @db.Char(1)
-  status             String?   @map("status") @db.Char(1)
-  autoid             Int       @id
-  millshortname      String?   @db.NVarChar(255)
-  itemname           String?   @db.VarChar(50)
-  paymenttoshortname String?   @db.VarChar(50)
-  tenderdoshortname  String?   @db.VarChar(50)
-  sold               Decimal   @map("sold") @db.Decimal(38, 2)
-  balance            Decimal?  @map("balance") @db.Decimal(38, 2)
+  tender_no       Int?      @map("tender_no")
+  tender_id       Int?      @map("tenderid")
+  tender_date     DateTime? @map("tender_date") @db.Date
+  published_qty   Decimal?  @map("published_qty") @db.Decimal(18, 2)
+  publish_date    DateTime? @map("publish_date") @db.Date
+  lifting_date    DateTime? @map("lifting_date") @db.Date
+  mill_code       Int?      @map("mill_code")
+  mc              Int?      @map("mc")
+  payment_to      Int?      @map("payment_to")
+  item_code       Int?      @map("item_code")
+  it              Int?      @map("it")
+  pt              Int?      @map("pt")
+  doac            Int?
+  doid            Int?
+  season          String?   @map("season") @db.NVarChar(50)
+  grade           String?   @map("grade") @db.NVarChar(50)
+  unit            String?   @map("unit") @db.Char(1)
+  qty             Decimal?  @db.Decimal(18, 2)
+  mill_rate       Decimal?  @map("mill_rate") @db.Decimal(18, 2)
+  sale_rate       Decimal?  @map("sale_rate") @db.Decimal(18, 2)
+  purc_rate       Decimal?  @db.Decimal(18, 2)
+  selling_type    String?   @map("selling_type") @db.Char(1)
+  multiple_of     Int?      @map("multipal_of")
+  auto_confirm    String?   @map("auto_confirm") @db.Char(1)
+  status          String?   @map("status") @db.Char(1)
+  autoid          Int       @id
+  mill_short_name   String?   @map("millshortname") @db.NVarChar(255)
+  item_name       String?   @map("itemname") @db.VarChar(50)
+  payment_to_name String?   @map("paymenttoshortname") @db.VarChar(50)
+  tender_do_name  String?   @map("tenderdoshortname") @db.VarChar(50)
+  sold            Decimal   @map("sold") @db.Decimal(38, 2)
+  balance         Decimal?  @map("balance") @db.Decimal(38, 2)
 
   @@map("qrytrdailybalance")
 }

@@ -1,23 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  createSubTodoByQuery,
-  createTodoByQuery,
-  deleteTodoByQuery,
-  getSubTodosByQuery,
-  getTodosByQuery,
-  updateTodoByQuery,
-} from "../models/todo/service";
-import { Op } from "sequelize";
-import { SubTodosInterface, TodosInterface } from "../models/todo/todo.model";
+import { SubTodos, Todos } from "../utils/models";
+import createHttpError from "http-errors";
+import { getRandomId } from "../utils/random";
 
 export async function getTodo(req: Request, res: Response, next: NextFunction) {
   try {
     const { todoId } = req.params;
-    const todo = await getTodosByQuery({
+    const todo = await Todos.findFirst({
       where: {
         todoId,
       },
     });
+    if (!todo) {
+      throw createHttpError.NotFound("Opps!! Todo not found");
+    }
     next({ message: "Todo found", data: { todo } });
   } catch (err: Error | any) {
     if (!err.statusCode) {
@@ -35,13 +31,16 @@ export async function postTodo(
   try {
     const { userId, title, description, status, priority, dueDate } = req.body;
 
-    const todo = await createTodoByQuery({
-      userId,
-      title,
-      description,
-      status,
-      priority,
-      dueDate,
+    const todo = await Todos.create({
+      data: {
+        userId,
+        todoId: getRandomId(),
+        description,
+        dueDate,
+        priority,
+        status,
+        title,
+      },
     });
 
     next({ message: "Todo created", data: { todo } });
@@ -60,21 +59,21 @@ export async function updateTodo(
 ) {
   try {
     const { todoId, title, description, status, priority, dueDate } = req.body;
-    const todo = await updateTodoByQuery(
-      {
+    const todo = await Todos.update({
+      data: {
         title,
         description,
         status,
         priority,
         dueDate,
       },
-      {
-        where: {
-          todoId,
-        },
-      }
-    );
-    next({ message: "Todo updated", data: { todo } });
+
+      where: {
+        todoId,
+      },
+    });
+
+    next({ message: `Todo updated successfully`, data: { todo } });
   } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -90,12 +89,12 @@ export async function deleteTodo(
 ) {
   try {
     const { todoId } = req.params;
-    const todo = await deleteTodoByQuery({
+    const todo = await Todos.delete({
       where: {
         todoId,
       },
     });
-    next({ message: "Todo deleted", data: { todo } });
+    next({ message: "Todo deleted successfully", data: { todo } });
   } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -110,7 +109,7 @@ export async function getTodos(
   next: NextFunction
 ) {
   try {
-    const allTodos = await getTodosByQuery({
+    const allTodos = await Todos.findMany({
       where: {
         userId: req.params.user_id,
       },
@@ -118,16 +117,16 @@ export async function getTodos(
 
     const todoIds = allTodos.map((todo) => todo.todoId);
 
-    const allSubTodos = await getSubTodosByQuery({
+    const allSubTodos = await SubTodos.findMany({
       where: {
         todoId: {
-          [Op.in]: todoIds,
+          in: todoIds,
         },
       },
     });
     type ResponseType = {
-      todo: TodosInterface;
-      subTodos: SubTodosInterface[];
+      todo: (typeof allTodos)[0];
+      subTodos: typeof allSubTodos;
     };
 
     let response: ResponseType[] = [];
@@ -138,7 +137,7 @@ export async function getTodos(
     }
 
     for (const subTodo of allSubTodos) {
-      const todo = todoMap.get(subTodo.todoId);
+      const todo = todoMap.get(subTodo.todoId!);
       if (todo) {
         todo.subTodos.push(subTodo);
       }
@@ -163,13 +162,16 @@ export async function postSubTodo(
   try {
     const { todoId, title, description, status, priority, dueDate } = req.body;
 
-    const subTodo = await createSubTodoByQuery({
-      todoId,
-      title,
-      description,
-      status,
-      priority,
-      dueDate,
+    const subTodo = await SubTodos.create({
+      data: {
+        subTodoId: getRandomId(),
+        todoId,
+        title,
+        description,
+        status,
+        priority,
+        dueDate,
+      },
     });
 
     next({ message: "SubTodo created", data: { subTodo } });
@@ -189,20 +191,19 @@ export async function updateSubTodo(
   try {
     const { subTodoId, title, description, status, priority, dueDate } =
       req.body;
-    const subTodo = await updateTodoByQuery(
-      {
+    const subTodo = await SubTodos.update({
+      data: {
         title,
         description,
         status,
         priority,
         dueDate,
       },
-      {
-        where: {
-          subTodoId,
-        },
-      }
-    );
+
+      where: {
+        subTodoId,
+      },
+    });
     next({ message: "SubTodo updated", data: { subTodo } });
   } catch (err: Error | any) {
     if (!err.statusCode) {
@@ -219,12 +220,12 @@ export async function deleteSubTodo(
 ) {
   try {
     const { subTodoId } = req.params;
-    const subTodo = await deleteTodoByQuery({
+    const subTodo = await SubTodos.delete({
       where: {
         subTodoId,
       },
     });
-    next({ message: "SubTodo deleted", data: { subTodo } });
+    next({ message: "Sub-todo deleted", data: { subTodo } });
   } catch (err: Error | any) {
     if (!err.statusCode) {
       err.statusCode = 500;

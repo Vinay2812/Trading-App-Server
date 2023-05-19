@@ -81,6 +81,7 @@ export const postPublishListReq = z
           .string({
             required_error: "Tender date is required",
           })
+          .datetime()
           .transform((date) => new Date(date)),
         season: z.string({
           required_error: "Season is required",
@@ -88,23 +89,25 @@ export const postPublishListReq = z
         grade: z.string({
           required_error: "Grade is required",
         }),
-        quantal: z.number({
-          required_error: "Quantal is required",
-          invalid_type_error: "Quantal must be a number",
-        }),
+        quantal: z
+          .string({
+            required_error: "Quantal is required",
+          })
+          .regex(/^\d+$/, "Quantal must be a number"),
         lifting_date: z
           .string({
             required_error: "Lifting date is required",
             invalid_type_error: "Lifting date must be a date",
           })
+          .datetime()
           .transform((date) => new Date(date)),
-        purchase_rate: z.number({
-          required_error: "Purchase rate is required",
-          invalid_type_error: "Purchase rate must be a number",
-        }),
-        mill_rate: z.number({
+        purchase_rate: z
+          .string({
+            required_error: "Purchase rate is required",
+          })
+          .regex(/^\d+$/, "Purchase rate must be a number"),
+        mill_rate: z.string({
           required_error: "Mill rate is required",
-          invalid_type_error: "Mill rate must be a number",
         }),
         mc: z.number(),
         pt: z.number(),

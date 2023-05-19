@@ -30,9 +30,9 @@ export const registerReq = z
               .string({
                 required_error: "Pincode is required",
               })
+              .regex(/^\d+$/, "Pincode must contain only digits")
               .min(6, "Pincode must be of length 6")
-              .max(6, "Pincode must be of length 6")
-              .transform((val) => parseInt(val)),
+              .max(6, "Pincode must be of length 6"),
             mobile: z
               .string({
                 required_error: "Mobile number is required",

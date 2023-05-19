@@ -1,26 +1,18 @@
 import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
-import { Op } from "sequelize";
-import {
-  getManyAccountMasterByQuery,
-  getOnlineUsersByQuery,
-  getUserBankContactByQuery,
-  getUserBankDetailsByQuery,
-  updateOnlineUserByQuery,
-} from "../models/index";
 import { Request, Response, NextFunction } from "express";
-import {
-  UserBankDetailsInterface,
-  UserContactDetailsInterface,
-  UserOnlineDetailsInterface,
-} from "../models/users/users.model";
 import {
   GetOnlineUserCompaniesRequest,
   GetUserByIdRequest,
-  GetUserFromAccountMasterRequest,
   GetUserRequest,
   UpdatePasswordRequest,
 } from "../validators/user.validator";
+import {
+  AccountMaster,
+  UserBankDetails,
+  UserContactDetails,
+  UserProfile,
+} from "../utils/models";
 
 export async function updatePassword(
   req: UpdatePasswordRequest,
@@ -29,29 +21,26 @@ export async function updatePassword(
 ) {
   const { userId, password } = req.body;
   try {
-    const checkUserExistQuery = {
-      attributes: ["userId"],
-      where: { userId },
-    };
-    const userExist = await getOnlineUsersByQuery(checkUserExistQuery);
-    if (!userExist?.length) {
+    const userExist = await UserProfile.count({
+      where: {
+        userId,
+      },
+    });
+    if (!userExist) {
       throw createHttpError.NotFound("User not found");
     }
 
     const genSalt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, genSalt);
 
-    const updatePasswordSetQuery = { password: hashedPassword };
-    const updatePasswordQuery = {
-      where: { userId },
-      returning: true,
-    };
-
-    const queryOutput = await updateOnlineUserByQuery(
-      updatePasswordSetQuery,
-      updatePasswordQuery
-    );
-    let user = queryOutput.data[0];
+    const user = await UserProfile.update({
+      data: {
+        password: hashedPassword,
+      },
+      where: {
+        userId,
+      },
+    });
     next({
       message: "Password updated successfully",
       data: { userData: user },
@@ -69,18 +58,17 @@ export async function getUser(
 ) {
   const { company_name, mobile } = req.query;
   try {
-    const getUserQuery = {
+    const userData = await UserProfile.findFirst({
       where: {
-        [Op.and]: [{ company_name }, { mobile }],
+        company_name,
+        mobile,
       },
-    };
-    const queryOutput = await getOnlineUsersByQuery(getUserQuery);
-    if (!queryOutput?.length) {
+    });
+    if (!userData) {
       throw createHttpError.NotFound(
         `User not found for ${company_name} & ${mobile}`
       );
     }
-    const userData = queryOutput[0];
     next({ data: { userData }, message: "Fetched user successfully" });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
@@ -95,12 +83,16 @@ export async function getOnlineUserCompanies(
 ) {
   const { mobile } = req.params;
   try {
-    const getCompaniesQuery = {
-      attributes: ["company_name"],
-      where: { mobile },
-    };
-    let queryResponse = await getOnlineUsersByQuery(getCompaniesQuery);
-    let companies = queryResponse.map(({ company_name }) => company_name);
+    const companies = (
+      await UserProfile.findMany({
+        select: {
+          company_name: true,
+        },
+        where: {
+          mobile,
+        },
+      })
+    ).map(({ company_name }) => company_name);
     next({ data: { companies }, message: "Companies fetched successfully" });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
@@ -115,16 +107,16 @@ export async function getUserById(
 ) {
   const { userId } = req.params;
   try {
-    const getQuery = {
-      where: { userId },
-    };
-
-    let userData = await getOnlineUsersByQuery(getQuery);
-    if (!userData?.length) {
+    let userData = await UserProfile.findFirst({
+      where: {
+        userId,
+      },
+    });
+    if (!userData) {
       throw createHttpError.NotFound("User not found");
     }
     const response = {
-      data: { userData: userData[0] },
+      data: { userData },
       message: "User fetched successfully",
     };
     next(response);
@@ -140,14 +132,26 @@ export async function getAllAccountMasterCompanyName(
   next: NextFunction
 ) {
   try {
-    const getCompanyNamesQuery: any = {
-      attributes: ["ac_name_e", "accoid"],
-      where: {
-        [Op.and]: [{ company_code: 1 }, { userId: { [Op.is]: null } }],
+    const companies = await AccountMaster.findMany({
+      select: {
+        ac_name_e: true,
+        accoid: true,
       },
-      order: [["ac_name_e", "asc"]],
-    };
-    const companies = await getManyAccountMasterByQuery(getCompanyNamesQuery);
+      where: {
+        company_code: 1,
+        OR: [
+          {
+            userId: null,
+          },
+          {
+            userId: undefined,
+          },
+        ],
+      },
+      orderBy: {
+        ac_name_e: "asc",
+      },
+    });
     next({
       data: { companies },
       message: "Companies name fetched from account",
@@ -165,18 +169,25 @@ export async function getUserFromAccountMaster(
 ) {
   const { accoid } = req.params;
   try {
-    const getUserQuery = {
-      attributes: ["accoid", "ac_code", "ac_name_e", "address_e", "gst_no"],
-      where: { accoid },
-    };
-    const userData = await getManyAccountMasterByQuery(getUserQuery);
-    if (!userData?.length) {
+    const userData = await AccountMaster.findFirst({
+      where: {
+        accoid: parseInt(accoid),
+      },
+      select: {
+        accoid: true,
+        ac_code: true,
+        ac_name_e: true,
+        address_e: true,
+        gst_no: true,
+      },
+    });
+    if (!userData) {
       throw createHttpError.NotFound("User not found");
     }
     const response = {
       message: "User fetched successfully",
       data: {
-        userData: userData[0],
+        userData,
       },
     };
     next(response);
@@ -186,49 +197,58 @@ export async function getUserFromAccountMaster(
   }
 }
 
-interface UserDetailsResponseInterface extends UserOnlineDetailsInterface {
-  isMapped: boolean;
-  isAdded: boolean;
-}
 export async function getAllUsersData(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const users = await getOnlineUsersByQuery();
+    const users = await UserProfile.findMany();
     let userIds: string[] = [];
 
     for (let user of users) {
       userIds.push(user.userId);
     }
 
-    const query = {
-      where: {
-        userId: {
-          [Op.in]: userIds,
+    const [bankDetails, contactDetails] = await Promise.all([
+      UserBankDetails.findMany({
+        where: {
+          userId: {
+            in: userIds,
+          },
         },
-      },
+      }),
+      UserContactDetails.findMany({
+        where: {
+          userId: {
+            in: userIds,
+          },
+        },
+      }),
+    ]);
+
+    type UserDetailsResponse = (typeof users)[0] & {
+      isMapped: boolean;
+      isAdded: boolean;
     };
 
     type UserData = {
-      userDetails: UserDetailsResponseInterface;
-      bankDetails: UserBankDetailsInterface[];
-      contactDetails: UserContactDetailsInterface[];
-    };
-
-    const [bankDetails, contactDetails] = await Promise.all([
-      getUserBankDetailsByQuery(query),
-      getUserBankContactByQuery(query),
-    ]);
-
-    const isMappedQuery = {
-      attributes: ["userId"],
-      where: { userId: { [Op.in]: userIds } },
+      userDetails: UserDetailsResponse;
+      bankDetails: typeof bankDetails;
+      contactDetails: typeof contactDetails;
     };
 
     const mappedUserIds = (
-      await getManyAccountMasterByQuery(isMappedQuery)
+      await AccountMaster.findMany({
+        where: {
+          userId: {
+            in: userIds,
+          },
+        },
+        select: {
+          userId: true,
+        },
+      })
     ).map(({ userId }) => userId);
     let userDataMap = new Map<string, UserData>();
 

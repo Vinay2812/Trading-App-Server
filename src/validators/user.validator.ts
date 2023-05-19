@@ -61,11 +61,10 @@ export const getUserByIdReq = z
 export const getUserFromAccountMasterReq = z
   .object({
     params: z.object({
-      accoid: z.number({
+      accoid: z.string({
         required_error: "accoid is required",
-        invalid_type_error: "accoid must be a number",
-      }),
-    }),
+      }).regex(/^\d+$/, "accoid must be a number"),
+    }).required(),
   })
   .required();
 

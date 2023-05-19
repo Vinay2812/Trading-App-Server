@@ -1,7 +1,7 @@
 // connections (sequence imp)
 import "./connections/socket.connection";
 import { app } from "./connections/server.connection";
-import "./connections/mssql.connection";
+import "./connections/prisma.connection";
 import "./connections/redis.connection";
 
 import express from "express";
@@ -19,9 +19,6 @@ import InvalidRoute from "./routes/invalid.route";
 import TodoRoute from "./routes/todo.route";
 
 // utils
-// sync with mssql
-import syncMssql from "./utils/sync";
-syncMssql();
 
 // middlewares
 import { ApiResponse } from "./middlewares/response.middleware";
