@@ -4,7 +4,7 @@ import logger from "./logger";
 export async function setCache(key: any, value: any, time_in_seconds: number) {
   try {
     const keyString: string = JSON.stringify(key);
-    RedisClient.setex(keyString, time_in_seconds, JSON.stringify(value));
+    await RedisClient.setex(keyString, time_in_seconds, JSON.stringify(value));
   } catch (err: Error | any) {
     logger.error(err);
   }

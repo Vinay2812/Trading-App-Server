@@ -4509,7 +4509,7 @@ model transactheaddummy {
 
 model trDailypublish {
   tender_no     Int?
-  tender_id     Int       @map("tenderid")
+  tender_id     Int?      @map("tenderid")
   tender_date   DateTime? @db.Date
   publish_date  DateTime? @db.Date
   lifting_date  DateTime? @db.Date
@@ -4569,24 +4569,25 @@ model trDailypublishHistory {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model trorderbook {
-  orderid        Int?
-  tenderid       Int?
-  tender_no      Int?
-  client_code    Int?
-  accoid         Int?
-  order_date     DateTime? @db.Date
-  order_remark   String?   @db.NVarChar(255)
-  qty            Decimal?  @db.Decimal(18, 2)
-  selling_type   String?   @db.Char(1)
-  sale_rate      Decimal?  @db.Decimal(18, 2)
-  mill_rate      Decimal?  @db.Decimal(18, 2)
-  purc_rate      Decimal?  @db.Decimal(18, 2)
-  sauda_confirm  String?   @db.Char(1)
-  Confirm_id     Int?
-  confirm_remark String?   @db.NVarChar(255)
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model OrderBook {
+  order_id       Int      @id(map: "PK_trorderbook") @default(autoincrement()) @map("orderid")
+  tender_id      Int      @map("tenderid")
+  tender_no      Int
+  client_code    Int
+  accoid         Int
+  order_date     DateTime @db.Date
+  order_remark   String   @db.NVarChar(255)
+  qty            Decimal  @db.Decimal(18, 2)
+  selling_type   String   @db.Char(1)
+  sale_rate      Decimal  @db.Decimal(18, 2)
+  mill_rate      Decimal  @db.Decimal(18, 2)
+  purc_rate      Decimal  @db.Decimal(18, 2)
+  sauda_confirm  String   @db.Char(1)
+  confirm_id     Int      @map("Confirm_id")
+  confirm_remark String   @db.NVarChar(255)
 
-  @@ignore
+  @@map("trorderbook")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
@@ -4690,6 +4691,14 @@ model uses {
   updatedAt     DateTime @db.DateTimeOffset
 }
 
+model unviewedItems {
+  userId String @db.Char(200)
+  itemId String @db.Char(200)
+  name   String @db.Char(200)
+
+  @@unique([userId, name, itemId], map: "uk_unviewed_items__userid_name_itemid")
+}
+
 view TenderBalanceView {
   DESPATCH               Decimal?  @db.Decimal(38, 2)
   balance                Decimal?  @map("BALANCE") @db.Decimal(38, 2)
@@ -4767,7 +4776,7 @@ view DailyBalance {
   auto_confirm    String?   @map("auto_confirm") @db.Char(1)
   status          String?   @map("status") @db.Char(1)
   autoid          Int       @id
-  mill_short_name   String?   @map("millshortname") @db.NVarChar(255)
+  mill_short_name String?   @map("millshortname") @db.NVarChar(255)
   item_name       String?   @map("itemname") @db.VarChar(50)
   payment_to_name String?   @map("paymenttoshortname") @db.VarChar(50)
   tender_do_name  String?   @map("tenderdoshortname") @db.VarChar(50)
@@ -15005,6 +15014,11 @@ view qrytenderhead {
 view NT_1_qryLedgerShortPayment {
   /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   // # Int? @map("#")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   Voucher_No   Int?
   Voucher_Type String?  @db.VarChar(4)
   Ptype        String?  @db.VarChar(2)
@@ -15355,6 +15369,11 @@ view qrybillreciept {
   ttype        String?   @db.VarChar(2)
   /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   // # Int? @map("#")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   Party        String?   @db.VarChar(255)
   lorry        String?   @db.VarChar(50)
   Qntl         Decimal?  @db.Decimal(18, 2)
@@ -15483,6 +15502,11 @@ view qryBillrecieptsummary {
   ttype        String?   @db.VarChar(2)
   /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   // # Int? @map("#")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
   Party        String?   @db.VarChar(255)
   lorry        String?   @db.VarChar(50)
   Qntl         Decimal?  @db.Decimal(18, 2)

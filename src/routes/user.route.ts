@@ -6,13 +6,15 @@ import {
   getUserById,
   getUserFromAccountMaster,
   updatePassword,
-  getAllUsersData
+  getAllUsersData,
+  getUserProfile,
 } from "../controller/user.controller";
 import { validate } from "../middlewares/validator.middleware";
 import {
   getOnlineUserCompaniesReq,
   getUserByIdReq,
   getUserFromAccountMasterReq,
+  getUserProfileReq,
   getUserReq,
   updatePasswordReq,
 } from "../validators/user.validator";
@@ -36,5 +38,7 @@ router.get(
   validate(getUserFromAccountMasterReq),
   getUserFromAccountMaster
 );
+
+router.get("/profile/:userId", validate(getUserProfileReq), getUserProfile);
 
 export default router;

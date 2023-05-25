@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   GetOnlineUserCompaniesRequest,
   GetUserByIdRequest,
+  GetUserProfile,
   GetUserRequest,
   UpdatePasswordRequest,
 } from "../validators/user.validator";
@@ -290,6 +291,41 @@ export async function getAllUsersData(
     next({
       data: { userData },
       message: "Successfully fetched all users data",
+    });
+  } catch (err: Error | any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function getUserProfile(
+  req: GetUserProfile,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { userId } = req.params;
+    const query = {
+      where: {
+        userId,
+      },
+    };
+    const userInfo = await UserProfile.findFirst(query);
+    console.log(userId)
+    if (!userInfo) {
+      throw createHttpError.NotFound("User not found");
+    }
+
+    const bankInfo = await UserBankDetails.findMany(query);
+    const contactInfo = await UserContactDetails.findMany(query);
+
+    next({
+      message: "User profile fetched",
+      data: {
+        userInfo,
+        bankInfo,
+        contactInfo,
+      },
     });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;

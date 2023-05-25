@@ -35,7 +35,7 @@ app.use(morgan(":status :method :url :response-time ms"));
 
 // routes
 // check connection
-app.post(
+app.get(
   "/",
   async (
     req: express.Request,

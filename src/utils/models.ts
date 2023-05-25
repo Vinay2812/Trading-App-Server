@@ -9,6 +9,7 @@ export const AdminProfile = prisma.adminProfile;
 export const UserProfile = prisma.userOnlineDetails;
 export const UserBankDetails = prisma.userBankDetails;
 export const UserContactDetails = prisma.userContactDetails;
+export const OrderBook = prisma.orderBook
 
 /* Views */
 export const TenderBalanceView = prisma.tenderBalanceView;

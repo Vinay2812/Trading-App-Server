@@ -60,11 +60,27 @@ export const getUserByIdReq = z
 
 export const getUserFromAccountMasterReq = z
   .object({
-    params: z.object({
-      accoid: z.string({
-        required_error: "accoid is required",
-      }).regex(/^\d+$/, "accoid must be a number"),
-    }).required(),
+    params: z
+      .object({
+        accoid: z
+          .string({
+            required_error: "accoid is required",
+          })
+          .regex(/^\d+$/, "accoid must be a number"),
+      })
+      .required(),
+  })
+  .required();
+
+export const getUserProfileReq = z
+  .object({
+    params: z
+      .object({
+        userId: z.string({
+          required_error: "User id is required",
+        }),
+      })
+      .required(),
   })
   .required();
 
@@ -77,3 +93,4 @@ export type GetUserByIdRequest = z.infer<typeof getUserByIdReq>;
 export type GetUserFromAccountMasterRequest = z.infer<
   typeof getUserFromAccountMasterReq
 >;
+export type GetUserProfile = z.infer<typeof getUserProfileReq>;
