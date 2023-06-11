@@ -40,28 +40,20 @@ export const registerReq = z
               .min(10, "Mobile number must be of length 10")
               .max(10, "Mobile number must be of length 10"),
             whatsapp: z
-              .union([
-                z
-                  .string({
-                    required_error: "Mobile number is required",
-                  })
-                  .min(10, "Whatsapp number must be of length 10")
-                  .max(10, "Whatsapp number must be of length 10"),
-                z.string().min(0),
-                z.undefined(),
-              ])
+              .string()
+              .nullish()
+              .optional()
+              .default("")
+              .transform((val) => (!val ? "" : val))
               .optional()
               .default("")
               .transform((val) => (!val ? "" : val)),
             gst: z
-              .union([
-                z
-                  .string()
-                  .min(15, "GST number must be of length 15")
-                  .max(15, "GST number must be of length 15"),
-                z.string().min(0),
-                z.undefined(),
-              ])
+              .string()
+              .nullish()
+              .optional()
+              .default("")
+              .transform((val) => (!val ? "" : val))
               .optional()
               .default("")
               .transform((val) => (!val ? "" : val)),
@@ -132,16 +124,8 @@ export const registerReq = z
                   .min(10, "Mobile number must be of length 10")
                   .max(10, "Mobile number must be of length 10"),
                 whatsapp: z
-                  .union([
-                    z
-                      .string({
-                        required_error: "Mobile number is required",
-                      })
-                      .min(10, "Whatsapp number must be of length 10")
-                      .max(10, "Whatsapp number must be of length 10"),
-                    z.string().min(0),
-                    z.undefined(),
-                  ])
+                  .string()
+                  .nullish()
                   .optional()
                   .default("")
                   .transform((val) => (!val ? "" : val)),

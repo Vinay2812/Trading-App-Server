@@ -8,9 +8,11 @@ import {
   updatePassword,
   getAllUsersData,
   getUserProfile,
+  buyOrder,
 } from "../controller/user.controller";
 import { validate } from "../middlewares/validator.middleware";
 import {
+  buyOrderReq,
   getOnlineUserCompaniesReq,
   getUserByIdReq,
   getUserFromAccountMasterReq,
@@ -40,5 +42,8 @@ router.get(
 );
 
 router.get("/profile/:userId", validate(getUserProfileReq), getUserProfile);
+
+// buy order
+router.post("/buy-order", validate(buyOrderReq), buyOrder);
 
 export default router;

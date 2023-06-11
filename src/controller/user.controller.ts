@@ -1,7 +1,8 @@
 import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
+  BuyOrderRequest,
   GetOnlineUserCompaniesRequest,
   GetUserByIdRequest,
   GetUserProfile,
@@ -10,6 +11,7 @@ import {
 } from "../validators/user.validator";
 import {
   AccountMaster,
+  OrderBook,
   UserBankDetails,
   UserContactDetails,
   UserProfile,
@@ -91,6 +93,9 @@ export async function getOnlineUserCompanies(
         },
         where: {
           mobile,
+        },
+        orderBy: {
+          company_name: "asc",
         },
       })
     ).map(({ company_name }) => company_name);
@@ -311,7 +316,7 @@ export async function getUserProfile(
       },
     };
     const userInfo = await UserProfile.findFirst(query);
-    console.log(userId)
+    console.log(userId);
     if (!userInfo) {
       throw createHttpError.NotFound("User not found");
     }
@@ -332,3 +337,17 @@ export async function getUserProfile(
     next(err);
   }
 }
+
+export const buyOrder: RequestHandler = async (req: BuyOrderRequest, res, next) => {
+  try {
+    await OrderBook.create({
+      data: {
+        ...req.body,
+        order_date: new Date().toLocaleString(),
+      },
+    });
+  } catch (err: Error | any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+};

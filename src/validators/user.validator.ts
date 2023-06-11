@@ -84,6 +84,55 @@ export const getUserProfileReq = z
   })
   .required();
 
+export const buyOrderReq = z
+  .object({
+    body: z
+      .object({
+        tender_id: z.number({
+          required_error: "Tender id is required",
+        }),
+        tender_no: z.number({
+          required_error: "Tender no is required",
+        }),
+        userId: z.string({
+          required_error: "User id is required",
+        }),
+        accoid: z.number({
+          required_error: "Accoid is required",
+        }),
+        order_remark: z.string({
+          required_error: "Order remark is required",
+        }),
+        qty: z.number({
+          required_error: "Quantity is required",
+        }),
+        selling_type: z.string({
+          required_error: "Selling type is required",
+        }),
+        sale_rate: z.number({
+          required_error: "Sale rate is required",
+        }),
+        mill_rate: z.number({
+          required_error: "Mill rate is required",
+        }),
+        purc_rate: z.number({
+          required_error: "Purchase rate is required",
+        }),
+        order_confirmed: z
+          .string({
+            required_error: "Order confirmed is required",
+          })
+          .refine((val) => val === "Y" || val === "N", {
+            message: "Order confirmed must be Y or N",
+          }),
+        confirm_remark: z.string({
+          required_error: "Confirm remark is required",
+        }),
+      })
+      .required(),
+  })
+  .required();
+
 export type UpdatePasswordRequest = z.infer<typeof updatePasswordReq>;
 export type GetUserRequest = z.infer<typeof getUserReq>;
 export type GetOnlineUserCompaniesRequest = z.infer<
@@ -94,3 +143,4 @@ export type GetUserFromAccountMasterRequest = z.infer<
   typeof getUserFromAccountMasterReq
 >;
 export type GetUserProfile = z.infer<typeof getUserProfileReq>;
+export type BuyOrderRequest = z.infer<typeof buyOrderReq>;

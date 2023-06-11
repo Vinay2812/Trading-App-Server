@@ -12,7 +12,10 @@ import {
 import { updateTradingOption } from "../socket/controller/emit";
 import { NextFunction, Request, Response } from "express";
 import io from "../connections/socket.connection";
-import { UPDATE_PUBLISHED_LIST } from "../utils/socket-emits";
+import {
+  UPDATE_AUTHORIZATION,
+  UPDATE_PUBLISHED_LIST,
+} from "../utils/socket-emits";
 import {
   AddUserRequest,
   AdminLoginRequest,
@@ -269,7 +272,7 @@ export async function addUser(
 
     next({ message: "User added successfully" });
 
-    // TODO: add socket call
+    io.to(userId).emit(UPDATE_AUTHORIZATION, accoid);
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);
@@ -308,7 +311,7 @@ export async function mapClient(
     await Promise.all([promise1, promise2]);
     next({ message: "Mapping was successful" });
 
-    // TODO: add socket call
+    io.to(userId).emit(UPDATE_AUTHORIZATION, accoid);
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);

@@ -24,7 +24,8 @@ import {
 const sendOtpByEmail = async (email: string) => {
   const otp = getRandomOtp();
   const cacheKey = getOtpCacheKey(email);
-  setCache(cacheKey, otp, 5 * 60);
+  await setCache(cacheKey, otp, 5 * 60);
+  console.log("cache set")
   await sendEmail(email, otp);
 };
 
@@ -68,7 +69,7 @@ export async function register(
     });
     const { userId } = userDetails;
 
-    Promise.all([
+    await Promise.all([
       // insert all bank details
       ...bankData.map((bData) => {
         return UserBankDetails.create({
