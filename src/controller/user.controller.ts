@@ -1,13 +1,11 @@
 import createHttpError from "http-errors";
-import bcrypt from "bcrypt";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
   BuyOrderRequest,
   GetOnlineUserCompaniesRequest,
   GetUserByIdRequest,
   GetUserProfile,
-  GetUserRequest,
-  UpdatePasswordRequest,
+  GetUserByQueryRequest,
 } from "../validators/user.validator";
 import {
   AccountMaster,
@@ -17,45 +15,8 @@ import {
   UserProfile,
 } from "../utils/models";
 
-export async function updatePassword(
-  req: UpdatePasswordRequest,
-  res: Response,
-  next: NextFunction
-) {
-  const { userId, password } = req.body;
-  try {
-    const userExist = await UserProfile.count({
-      where: {
-        userId,
-      },
-    });
-    if (!userExist) {
-      throw createHttpError.NotFound("User not found");
-    }
-
-    const genSalt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, genSalt);
-
-    const user = await UserProfile.update({
-      data: {
-        password: hashedPassword,
-      },
-      where: {
-        userId,
-      },
-    });
-    next({
-      message: "Password updated successfully",
-      data: { userData: user },
-    });
-  } catch (err: Error | any) {
-    if (!err.status) err.status = 500;
-    next(err);
-  }
-}
-
-export async function getUser(
-  req: GetUserRequest,
+export async function getUserByQuery(
+  req: GetUserByQueryRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -316,7 +277,6 @@ export async function getUserProfile(
       },
     };
     const userInfo = await UserProfile.findFirst(query);
-    console.log(userId);
     if (!userInfo) {
       throw createHttpError.NotFound("User not found");
     }
@@ -338,13 +298,21 @@ export async function getUserProfile(
   }
 }
 
-export const buyOrder: RequestHandler = async (req: BuyOrderRequest, res, next) => {
+export const buyOrder: RequestHandler = async (
+  req: BuyOrderRequest,
+  res,
+  next
+) => {
   try {
     await OrderBook.create({
       data: {
         ...req.body,
         order_date: new Date().toLocaleString(),
       },
+    });
+    next({
+      data: null,
+      message: "Order placed successfully",
     });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;

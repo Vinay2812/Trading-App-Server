@@ -4,12 +4,14 @@ import {
   login,
   register,
   sendOTP,
+  updatePassword,
   validateOTP,
 } from "../controller/auth.controller";
 import {
   loginReq,
   registerReq,
   sendOTPReq,
+  updatePasswordReq,
   validateOTPReq,
 } from "../validators/auth.validator";
 const router = Router();
@@ -23,5 +25,7 @@ router.post("/login", validate(loginReq), login);
 router.post("/send-otp", validate(sendOTPReq), sendOTP);
 router.get("/otp/:userId", getOTP);
 router.post("/validate-otp", validate(validateOTPReq), validateOTP);
+
+router.patch("/password", validate(updatePasswordReq), updatePassword);
 
 export default router;

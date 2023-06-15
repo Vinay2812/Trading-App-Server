@@ -204,7 +204,19 @@ export const loginReq = z
   })
   .required();
 
+export const updatePasswordReq = z.object({
+  body: z.object({
+    userId: z.string({
+      required_error: "User id is required",
+    }),
+    password: z.string({
+      required_error: "Password is required",
+    }),
+  }),
+});
+
 export type RegisterRequest = z.infer<typeof registerReq>;
 export type ValidateOTPRequest = z.infer<typeof validateOTPReq>;
 export type SendOTPRequest = z.infer<typeof sendOTPReq>;
 export type LoginRequest = z.infer<typeof loginReq>;
+export type UpdatePasswordRequest = z.infer<typeof updatePasswordReq>

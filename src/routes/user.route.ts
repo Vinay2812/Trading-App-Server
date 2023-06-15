@@ -2,13 +2,12 @@ import { Router } from "express";
 import {
   getAllAccountMasterCompanyName,
   getOnlineUserCompanies,
-  getUser,
   getUserById,
   getUserFromAccountMaster,
-  updatePassword,
   getAllUsersData,
   getUserProfile,
   buyOrder,
+  getUserByQuery,
 } from "../controller/user.controller";
 import { validate } from "../middlewares/validator.middleware";
 import {
@@ -17,21 +16,21 @@ import {
   getUserByIdReq,
   getUserFromAccountMasterReq,
   getUserProfileReq,
-  getUserReq,
-  updatePasswordReq,
+  getUserByQueryReq,
 } from "../validators/user.validator";
 const router = Router();
 
 // user
 router.get("/:userId", validate(getUserByIdReq), getUserById);
-router.get("/", validate(getUserReq), getUser);
+
+// get using query
+router.get("/", validate(getUserByQueryReq), getUserByQuery);
 router.get("/registered-users/details", getAllUsersData);
 router.get(
   "/companies/:mobile",
   validate(getOnlineUserCompaniesReq),
   getOnlineUserCompanies
 );
-router.patch("/password", validate(updatePasswordReq), updatePassword);
 
 // account_master
 router.get("/account_master/company-names", getAllAccountMasterCompanyName);

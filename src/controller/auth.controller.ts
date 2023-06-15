@@ -13,6 +13,7 @@ import {
   LoginRequest,
   RegisterRequest,
   SendOTPRequest,
+  UpdatePasswordRequest,
   ValidateOTPRequest,
 } from "../validators/auth.validator";
 import {
@@ -24,8 +25,7 @@ import {
 const sendOtpByEmail = async (email: string) => {
   const otp = getRandomOtp();
   const cacheKey = getOtpCacheKey(email);
-  await setCache(cacheKey, otp, 5 * 60);
-  console.log("cache set")
+  setCache(cacheKey, otp, 5 * 60);
   await sendEmail(email, otp);
 };
 
@@ -185,6 +185,40 @@ export async function getOTP(req: Request, res: Response, next: NextFunction) {
       throw createHttpError.NotFound("Otp not found");
     }
     next({ message: "valid user" });
+  } catch (err: Error | any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function updatePassword(
+  req: UpdatePasswordRequest,
+  res: Response,
+  next: NextFunction
+) {
+  const { userId, password } = req.body;
+  try {
+    const userExists = await UserProfile.count({
+      where: {
+        userId,
+      },
+    });
+    if (!userExists) {
+      throw createHttpError.NotFound("User not found");
+    }
+    const hasshedPassword = await bcrypt.hash(password, 10);
+    await UserProfile.update({
+      data: {
+        password: hasshedPassword,
+      },
+      where: {
+        userId,
+      },
+    });
+    next({
+      data: null,
+      message: "Password updated successfully",
+    });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
     next(err);

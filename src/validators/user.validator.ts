@@ -17,7 +17,7 @@ export const updatePasswordReq = z
   })
   .required();
 
-export const getUserReq = z
+export const getUserByQueryReq = z
   .object({
     query: z
       .object({
@@ -134,7 +134,7 @@ export const buyOrderReq = z
   .required();
 
 export type UpdatePasswordRequest = z.infer<typeof updatePasswordReq>;
-export type GetUserRequest = z.infer<typeof getUserReq>;
+export type GetUserByQueryRequest = z.infer<typeof getUserByQueryReq>;
 export type GetOnlineUserCompaniesRequest = z.infer<
   typeof getOnlineUserCompaniesReq
 >;
