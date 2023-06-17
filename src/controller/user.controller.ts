@@ -1,11 +1,11 @@
 import createHttpError from "http-errors";
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import {
-  BuyOrderRequest,
   GetOnlineUserCompaniesRequest,
   GetUserByIdRequest,
   GetUserProfile,
   GetUserByQueryRequest,
+  PlaceOrderRequest,
 } from "../validators/user.validator";
 import {
   AccountMaster,
@@ -14,6 +14,12 @@ import {
   UserContactDetails,
   UserProfile,
 } from "../utils/models";
+import io from "../connections/socket.connection";
+import {
+  UPDATE_ORDER_LIST,
+  UPDATE_PUBLISHED_LIST,
+  UPDATE_PUBLISH_LIST,
+} from "../utils/socket-emits";
 
 export async function getUserByQuery(
   req: GetUserByQueryRequest,
@@ -298,8 +304,8 @@ export async function getUserProfile(
   }
 }
 
-export const buyOrder: RequestHandler = async (
-  req: BuyOrderRequest,
+export const placeOrder: RequestHandler = async (
+  req: PlaceOrderRequest,
   res,
   next
 ) => {
@@ -307,12 +313,18 @@ export const buyOrder: RequestHandler = async (
     await OrderBook.create({
       data: {
         ...req.body,
-        order_date: new Date().toLocaleString(),
+        order_date: new Date().toISOString(),
       },
     });
+    io.emit(UPDATE_PUBLISHED_LIST);
+    io.emit(UPDATE_PUBLISH_LIST);
+    io.emit(UPDATE_ORDER_LIST);
     next({
       data: null,
-      message: "Order placed successfully",
+      message:
+        req.body.order_confirmed === "Y"
+          ? "Order placed successfully"
+          : "Request sent to the admin",
     });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;

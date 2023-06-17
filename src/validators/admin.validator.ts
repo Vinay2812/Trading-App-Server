@@ -89,11 +89,9 @@ export const postPublishListReq = z
         grade: z.string({
           required_error: "Grade is required",
         }),
-        quantal: z
-          .string({
-            required_error: "Quantal is required",
-          })
-          .regex(/^\d+$/, "Quantal must be a number"),
+        quantal: z.number({
+          required_error: "Quantal is required",
+        }),
         lifting_date: z
           .string({
             required_error: "Lifting date is required",
@@ -101,12 +99,10 @@ export const postPublishListReq = z
           })
           .datetime()
           .transform((date) => new Date(date)),
-        purchase_rate: z
-          .string({
-            required_error: "Purchase rate is required",
-          })
-          .regex(/^\d+$/, "Purchase rate must be a number"),
-        mill_rate: z.string({
+        purchase_rate: z.number({
+          required_error: "Purchase rate is required",
+        }),
+        mill_rate: z.number({
           required_error: "Mill rate is required",
         }),
         mc: z.number(),
@@ -238,6 +234,13 @@ export const modifySingleTradeReq = z
   })
   .required();
 
+export const getOrderListReq = z.object({
+  query: z.object({
+    userId: z.string().optional(),
+    order_confirmed: z.enum(["Y", "N"]).optional(),
+  })
+})
+
 export type AdminLoginRequest = z.infer<typeof adminLoginReq>;
 export type UpdateAuthorizationRequest = z.infer<typeof updateAuthorizationReq>;
 export type AddUserRequest = z.infer<typeof addUserReq>;
@@ -255,3 +258,4 @@ export type UpdateSingleSaleRateRequest = z.infer<
 >;
 export type UpdateAllSaleRateRequest = z.infer<typeof updateAllSaleRateReq>;
 export type ModifySingleTradeRequest = z.infer<typeof modifySingleTradeReq>;
+export type OrderListRequest = z.infer<typeof getOrderListReq>

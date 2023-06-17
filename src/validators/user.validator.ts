@@ -84,7 +84,7 @@ export const getUserProfileReq = z
   })
   .required();
 
-export const buyOrderReq = z
+export const placeOrderReq = z
   .object({
     body: z
       .object({
@@ -100,12 +100,16 @@ export const buyOrderReq = z
         accoid: z.number({
           required_error: "Accoid is required",
         }),
-        order_remark: z.string({
-          required_error: "Order remark is required",
-        }),
+        // auto comfirm -> Y ? Null : admin will add
+        order_remark: z
+          .string()
+          .nullish()
+          .transform((val) => val ? val : ""),
+        // user buyed
         qty: z.number({
           required_error: "Quantity is required",
         }),
+        // auto_confirm
         selling_type: z.string({
           required_error: "Selling type is required",
         }),
@@ -125,9 +129,11 @@ export const buyOrderReq = z
           .refine((val) => val === "Y" || val === "N", {
             message: "Order confirmed must be Y or N",
           }),
-        confirm_remark: z.string({
-          required_error: "Confirm remark is required",
-        }),
+        // auto_confirm = Y ? null : admin will provide
+        confirm_remark: z
+          .string()
+          .nullish()
+          .transform((val) => val ? val : ""),
       })
       .required(),
   })
@@ -143,4 +149,4 @@ export type GetUserFromAccountMasterRequest = z.infer<
   typeof getUserFromAccountMasterReq
 >;
 export type GetUserProfile = z.infer<typeof getUserProfileReq>;
-export type BuyOrderRequest = z.infer<typeof buyOrderReq>;
+export type PlaceOrderRequest = z.infer<typeof placeOrderReq>;

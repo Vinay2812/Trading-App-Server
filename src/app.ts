@@ -22,6 +22,7 @@ import TodoRoute from "./routes/todo.route";
 
 // middlewares
 import { ApiResponse } from "./middlewares/response.middleware";
+import { validateTime } from "./middlewares/request.middleware";
 
 // middlewares
 app.use(
@@ -32,6 +33,7 @@ app.use(
 app.use(bodyParser.json());
 app.use(helmet());
 app.use(morgan(":status :method :url :response-time ms"));
+// app.use(validateTime)
 
 // routes
 // check connection

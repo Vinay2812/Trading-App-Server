@@ -16,6 +16,7 @@ import {
   getAllTradeStatus,
   getAdminHome,
   updatePublishedListItem,
+  getOrderList,
 } from "../controller/admin.controller";
 import {
   addUserReq,
@@ -46,24 +47,12 @@ router.patch(
   validate(updateAuthorizationReq),
   updateAuthorization
 );
-router.post(
-  "/registration-list/add-user",
-  validate(addUserReq),
-  addUser
-);
-router.post(
-  "/registration-list/map-client",
-  validate(mapClientReq),
-  mapClient
-);
+router.post("/registration-list/add-user", validate(addUserReq), addUser);
+router.post("/registration-list/map-client", validate(mapClientReq), mapClient);
 
 //publish list
 router.get("/publish-list", getPublishList);
-router.post(
-  "/publish-list",
-  validate(postPublishListReq),
-  postPublishList
-);
+router.post("/publish-list", validate(postPublishListReq), postPublishList);
 
 // published-list
 router.get("/published-list", getPublishedList);
@@ -98,5 +87,7 @@ router.patch(
   modifySingleTrade
 );
 router.get("/published-list/status/all", getAllTradeStatus);
+
+router.get("/order-list", getOrderList);
 
 export default router;

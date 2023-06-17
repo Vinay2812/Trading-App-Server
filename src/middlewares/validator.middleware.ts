@@ -13,7 +13,11 @@ export const validate =
         headers: req.headers,
       };
       logger.debug(data);
-      await schema.parseAsync(data);
+      const res = await schema.parseAsync(data);
+      req.query = res.query;
+      req.body = res.body;
+      req.params = res.params;
+      req.headers = res.headers;
       return next();
     } catch (err: Error | any) {
       err.status = 422;

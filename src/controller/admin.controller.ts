@@ -8,9 +8,12 @@ import {
   TenderBalanceView,
   DailyBalance,
   DailyPublish,
+  OrderBook,
+  OffDays,
+  TradeTimings,
 } from "../utils/models";
 import { updateTradingOption } from "../socket/controller/emit";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import io from "../connections/socket.connection";
 import {
   UPDATE_AUTHORIZATION,
@@ -28,7 +31,9 @@ import {
   UpdatePublishedItemStatusRequest,
   UpdatePublishedListItemRequest,
   UpdateSingleSaleRateRequest,
+  getOrderListReq,
 } from "../validators/admin.validator";
+import { getDayOfWeek, isTimeInRange } from "../utils/date";
 
 /**
  * This is an async function that handles admin login by checking the username and password provided in
@@ -419,9 +424,9 @@ export async function postPublishList(
         season: req.body.season,
         grade: req.body.grade,
         unit: req.body.unit,
-        qty: parseFloat(req.body.quantal),
-        mill_rate: parseFloat(req.body.mill_rate),
-        purc_rate: parseFloat(req.body.purchase_rate),
+        qty: req.body.quantal,
+        mill_rate: req.body.mill_rate,
+        purc_rate: req.body.purchase_rate,
         sale_rate: parseFloat(req.body.sale_rate.toString()),
         published_qty: parseFloat(req.body.publish_quantal.toString()),
         selling_type: req.body.type,
@@ -431,7 +436,7 @@ export async function postPublishList(
       },
     });
 
-    next({ message: "Successfully inserted into published list" });
+    next({ message: "Successfully added to published list" });
 
     // tell client to fetch published list
     io.emit(UPDATE_PUBLISHED_LIST) &&
@@ -446,12 +451,36 @@ export async function postPublishList(
  * This function retrieves a list of published daily balances with a positive balance and removes
  * duplicates based on tender_id.
  */
+
 export async function getPublishedList(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
+    const { client = "false" } = req.query;
+    const isClientListReq = client === "true";
+
+    const currTime = new Date();
+
+    if (isClientListReq) {
+      const offDays = (
+        await OffDays.findMany({
+          select: {
+            day: true,
+          },
+        })
+      ).map(({ day }) => day);
+
+      if (offDays.includes(getDayOfWeek(currTime))) {
+        next({
+          data: [],
+          message: "Today is an off day",
+        });
+        return;
+      }
+    }
+
     const dailybalances = await DailyBalance.findMany({
       where: {
         balance: {
@@ -472,6 +501,52 @@ export async function getPublishedList(
         uniqueList.push(ele);
       }
     }
+
+    if (isClientListReq) {
+      const tradeTimings = await TradeTimings.findFirst({
+        select: {
+          start_time: true,
+          end_time: true,
+        },
+      });
+      const now = new Date();
+      let startTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        10,
+        0,
+        0,
+        0
+      );
+
+      let endTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        17,
+        0,
+        0,
+        0
+      );
+      if (tradeTimings) {
+        startTime = tradeTimings.start_time;
+        endTime = tradeTimings.end_time;
+      } else {
+        await TradeTimings.create({
+          data: {
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+            trade_day: new Date().getDay().toString(),
+          },
+        });
+      }
+      uniqueList = uniqueList.filter(({ publish_date }) =>
+        isTimeInRange(startTime, endTime, publish_date!)
+      );
+      console.log(uniqueList);
+    }
+
     next({ data: uniqueList, message: "Successfully fetched daily balances" });
   } catch (err: Error | any) {
     if (!err.status) err.status = 500;
@@ -595,6 +670,54 @@ export function getAdminHome(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
+export const getOrderList: RequestHandler = async (req, res, next) => {
+  try {
+    const { query } = getOrderListReq.parse({ query: req.query });
+    const orderBookQuery: any = {};
+    if (query.order_confirmed) {
+      orderBookQuery.order_confirmed = query.order_confirmed;
+    }
+    if (query.userId) {
+      orderBookQuery.userId = query.userId;
+    }
+    const pendingList = await OrderBook.findMany({
+      where: orderBookQuery,
+    });
+    if (!pendingList.length) {
+      next({ message: "No pending orders" });
+      return;
+    }
+    const userIds = pendingList.map(({ userId }) => userId);
+    const companyNames = await UserProfile.findMany({
+      select: {
+        userId: true,
+        company_name: true,
+      },
+      where: {
+        userId: {
+          in: userIds,
+        },
+      },
+    });
+
+    const companyUserIdMap = new Map<string, string>();
+    for (const company of companyNames) {
+      companyUserIdMap.set(company.userId, company.company_name);
+    }
+
+    next({
+      data: pendingList.map((data) => ({
+        ...data,
+        company_name: companyUserIdMap.get(data.userId),
+      })),
+      message: "Fetched pending orders",
+    });
+  } catch (err: any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+};
 
 /**
  * !deprecated

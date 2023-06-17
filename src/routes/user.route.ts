@@ -6,17 +6,17 @@ import {
   getUserFromAccountMaster,
   getAllUsersData,
   getUserProfile,
-  buyOrder,
+  placeOrder,
   getUserByQuery,
 } from "../controller/user.controller";
 import { validate } from "../middlewares/validator.middleware";
 import {
-  buyOrderReq,
   getOnlineUserCompaniesReq,
   getUserByIdReq,
   getUserFromAccountMasterReq,
   getUserProfileReq,
   getUserByQueryReq,
+  placeOrderReq,
 } from "../validators/user.validator";
 const router = Router();
 
@@ -43,6 +43,6 @@ router.get(
 router.get("/profile/:userId", validate(getUserProfileReq), getUserProfile);
 
 // buy order
-router.post("/buy-order", validate(buyOrderReq), buyOrder);
+router.post("/place-order", validate(placeOrderReq), placeOrder);
 
 export default router;

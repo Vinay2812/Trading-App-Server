@@ -10,6 +10,8 @@ export const UserProfile = prisma.userOnlineDetails;
 export const UserBankDetails = prisma.userBankDetails;
 export const UserContactDetails = prisma.userContactDetails;
 export const OrderBook = prisma.orderBook
+export const OffDays = prisma.offDays;
+export const TradeTimings = prisma.tradeTimings;
 
 /* Views */
 export const TenderBalanceView = prisma.tenderBalanceView;
