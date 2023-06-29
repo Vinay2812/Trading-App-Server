@@ -19,10 +19,10 @@ import InvalidRoute from "./routes/invalid.route";
 import TodoRoute from "./routes/todo.route";
 
 // utils
+import { scheduleTasks } from "./utils/schedule-task";
 
 // middlewares
 import { ApiResponse } from "./middlewares/response.middleware";
-import { validateTime } from "./middlewares/request.middleware";
 
 // middlewares
 app.use(
@@ -59,3 +59,4 @@ app.use(InvalidRoute);
 
 // response middleware
 app.use(ApiResponse);
+scheduleTasks()

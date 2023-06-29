@@ -29,8 +29,24 @@ SELECT
   dbo.qryItemMaster.System_Name_E AS itemname,
   pt.Short_Name AS paymenttoshortname,
   tdo.Short_Name AS tenderdoshortname,
-  ISNULL(SUM(dbo.trorderbook.qty), 0) AS sold,
-  dbo.trDailypublish.published_qty - ISNULL(SUM(dbo.trorderbook.qty), 0) AS balance
+  ISNULL(
+    SUM(
+      CASE
+        WHEN dbo.trorderbook.qty <> 'R' THEN dbo.trorderbook.qty
+        ELSE 0
+      END
+    ),
+    0
+  ) AS sold,
+  dbo.trDailypublish.published_qty - ISNULL(
+    SUM(
+      CASE
+        WHEN dbo.trorderbook.qty <> 'R' THEN dbo.trorderbook.qty
+        ELSE 0
+      END
+    ),
+    0
+  ) AS balance
 FROM
   dbo.trDailypublish
   LEFT JOIN dbo.nt_1_accountmaster AS tdo ON dbo.trDailypublish.doac = tdo.accoid

@@ -12,28 +12,34 @@ import {
   OffDays,
   TradeTimings,
 } from "../utils/models";
+import type { DailyBalance as DailyBalaceType } from "@prisma/client";
 import { updateTradingOption } from "../socket/controller/emit";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import io from "../connections/socket.connection";
 import {
   UPDATE_AUTHORIZATION,
+  UPDATE_ORDER_LIST,
   UPDATE_PUBLISHED_LIST,
 } from "../utils/socket-emits";
 import {
-  AddUserRequest,
-  AdminLoginRequest,
-  MapClientRequest,
-  ModifySingleTradeRequest,
-  PostPublishListRequest,
-  UpdateAllSaleRateRequest,
-  UpdateAllTradeRequest,
-  UpdateAuthorizationRequest,
-  UpdatePublishedItemStatusRequest,
-  UpdatePublishedListItemRequest,
-  UpdateSingleSaleRateRequest,
   getOrderListReq,
+  type AddUserRequest,
+  type AdminLoginRequest,
+  type MapClientRequest,
+  type ModifySingleTradeRequest,
+  type PostPublishListRequest,
+  type UpdateAllSaleRateRequest,
+  type UpdateAllTradeRequest,
+  type UpdateAuthorizationRequest,
+  type UpdatePendingOrderRequest,
+  type UpdatePublishedItemStatusRequest,
+  type UpdatePublishedListItemRequest,
+  type UpdateSingleSaleRateRequest,
+  type UpdateTradeTimingsRequest,
 } from "../validators/admin.validator";
+
 import { getDayOfWeek, isTimeInRange } from "../utils/date";
+import { scheduleTasks } from "../utils/schedule-task";
 
 /**
  * This is an async function that handles admin login by checking the username and password provided in
@@ -416,7 +422,7 @@ export async function postPublishList(
         mill_code: req.body.mill_code,
         mc: req.body.mc,
         item_code: req.body.item_code,
-        it: req.body.ic,
+        it: req.body.ic,cd 
         payment_to: req.body.payment_to,
         pt: req.body.pt,
         doac: req.body.tender_do,
@@ -470,12 +476,57 @@ export async function getPublishedList(
             day: true,
           },
         })
-      ).map(({ day }) => day);
+      ).map(({ day }) => day.trim());
 
       if (offDays.includes(getDayOfWeek(currTime))) {
         next({
           data: [],
           message: "Today is an off day",
+        });
+        return;
+      }
+      const tradeTimings = await TradeTimings.findFirst({
+        select: {
+          start_time: true,
+          end_time: true,
+        },
+      });
+      let startTime = new Date(
+        currTime.getFullYear(),
+        currTime.getMonth(),
+        currTime.getDate(),
+        10,
+        0,
+        0,
+        0
+      );
+
+      let endTime = new Date(
+        currTime.getFullYear(),
+        currTime.getMonth(),
+        currTime.getDate(),
+        17,
+        0,
+        0,
+        0
+      );
+      if (!tradeTimings) {
+        await TradeTimings.create({
+          data: {
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+            trade_day: new Date().getDay().toString(),
+          },
+        });
+      } else {
+        startTime = new Date(tradeTimings.start_time);
+        endTime = new Date(tradeTimings.end_time);
+      }
+
+      if (!isTimeInRange(startTime, endTime, currTime)) {
+        next({
+          data: [],
+          message: "You can't trade now",
         });
         return;
       }
@@ -486,6 +537,21 @@ export async function getPublishedList(
         balance: {
           gt: 0,
         },
+        ...(isClientListReq
+          ? {
+              publish_date: {
+                gte: new Date(
+                  currTime.getFullYear(),
+                  currTime.getMonth(),
+                  currTime.getDate(),
+                  0,
+                  0,
+                  0,
+                  0
+                ),
+              },
+            }
+          : {}),
       },
       orderBy: [
         {
@@ -500,51 +566,6 @@ export async function getPublishedList(
         uniqueKeys.push(ele.tender_id);
         uniqueList.push(ele);
       }
-    }
-
-    if (isClientListReq) {
-      const tradeTimings = await TradeTimings.findFirst({
-        select: {
-          start_time: true,
-          end_time: true,
-        },
-      });
-      const now = new Date();
-      let startTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        10,
-        0,
-        0,
-        0
-      );
-
-      let endTime = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        17,
-        0,
-        0,
-        0
-      );
-      if (tradeTimings) {
-        startTime = tradeTimings.start_time;
-        endTime = tradeTimings.end_time;
-      } else {
-        await TradeTimings.create({
-          data: {
-            start_time: startTime.toISOString(),
-            end_time: endTime.toISOString(),
-            trade_day: new Date().getDay().toString(),
-          },
-        });
-      }
-      uniqueList = uniqueList.filter(({ publish_date }) =>
-        isTimeInRange(startTime, endTime, publish_date!)
-      );
-      console.log(uniqueList);
     }
 
     next({ data: uniqueList, message: "Successfully fetched daily balances" });
@@ -603,7 +624,8 @@ export async function updatePublishedListItem(
   next: NextFunction
 ) {
   try {
-    const { tender_id, status, sale_rate, published_qty } = req.body;
+    const { tender_id, status, sale_rate, published_qty, publish_date } =
+      req.body;
 
     const res = await DailyPublish.findFirst({
       where: {
@@ -613,15 +635,19 @@ export async function updatePublishedListItem(
         autoid: true,
       },
     });
+    if (!res?.autoid) {
+      throw createError.NotFound("Published Item not found");
+    }
 
     await DailyPublish.update({
       data: {
         status,
         sale_rate,
         published_qty,
+        publish_date,
       },
       where: {
-        autoid: res?.autoid,
+        autoid: res.autoid,
       },
     });
     io.emit(UPDATE_PUBLISHED_LIST);
@@ -656,8 +682,135 @@ export async function getAllTradeStatus(
         break;
       }
     }
-    next({ data: { stop_trading_option } });
+    next({ data: { stopButtonEnabled: stop_trading_option } });
   } catch (err: Error | any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function updateAllTradeStatus(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { status } = req.body;
+
+    await DailyPublish.updateMany({
+      data: {
+        status,
+      },
+    });
+    io.emit(UPDATE_PUBLISHED_LIST);
+    next({
+      message:
+        status === "N" ? "Stopped all the trades" : "Started all the trades",
+    });
+  } catch (err: any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function getTradeTimings(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const offDays = (
+      await OffDays.findMany({
+        select: {
+          day: true,
+        },
+      })
+    ).map(({ day }) => day.trim());
+    const currTime = new Date();
+    const tradeTimings = await TradeTimings.findFirst({
+      select: {
+        start_time: true,
+        end_time: true,
+      },
+    });
+    let startTime = new Date(
+      currTime.getFullYear(),
+      currTime.getMonth(),
+      currTime.getDate(),
+      10,
+      0,
+      0,
+      0
+    );
+
+    let endTime = new Date(
+      currTime.getFullYear(),
+      currTime.getMonth(),
+      currTime.getDate(),
+      17,
+      0,
+      0,
+      0
+    );
+    if (!tradeTimings) {
+      await TradeTimings.create({
+        data: {
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          trade_day: new Date().getDay().toString(),
+        },
+      });
+    } else {
+      startTime = new Date(tradeTimings.start_time);
+      endTime = new Date(tradeTimings.end_time);
+    }
+
+    next({
+      data: {
+        startTime,
+        endTime,
+        offDays,
+      },
+    });
+  } catch (err: any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function updateTradeTimings(
+  req: UpdateTradeTimingsRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { startTime, endTime, offDays } = req.body;
+    await TradeTimings.deleteMany();
+    await OffDays.deleteMany();
+
+    await TradeTimings.create({
+      data: {
+        start_time: startTime,
+        end_time: endTime,
+        trade_day: getDayOfWeek(new Date(startTime)),
+      },
+    });
+
+    for (let day of offDays) {
+      await OffDays.create({
+        data: {
+          day,
+        },
+      });
+    }
+
+    next({
+      data: [],
+      message: "Successfully updated trade timings",
+    });
+    io.emit(UPDATE_PUBLISHED_LIST);
+    scheduleTasks();
+  } catch (err: any) {
     if (!err.status) err.status = 500;
     next(err);
   }
@@ -718,6 +871,75 @@ export const getOrderList: RequestHandler = async (req, res, next) => {
     next(err);
   }
 };
+
+export async function updatePendingOrder(
+  req: UpdatePendingOrderRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { order_id, order_confirmed, confirm_remark, order_remark } =
+      req.body;
+    await OrderBook.update({
+      where: {
+        order_id,
+      },
+      data: {
+        confirm_remark,
+        order_confirmed,
+        order_remark,
+      },
+    });
+    next({
+      data: null,
+      message:
+        order_confirmed === "Y" ? "Order approved!!" : "Order Rejected!!",
+    });
+    io.emit(UPDATE_PUBLISHED_LIST);
+    io.emit(UPDATE_ORDER_LIST);
+  } catch (err: any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
+
+export async function updatePublishDates(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { publishDate } = req.body;
+    const idAndBalance = await DailyBalance.findMany({
+      select: {
+        autoid: true,
+        balance: true,
+      },
+    });
+
+    await Promise.all(
+      idAndBalance.map(({ autoid, balance }) => {
+        return DailyPublish.update({
+          data: {
+            published_qty: balance,
+            publish_date: new Date(publishDate),
+          },
+          where: {
+            autoid,
+          },
+        });
+      })
+    );
+
+    next({
+      message: "Updated the publish date!!",
+    });
+    io.emit(UPDATE_PUBLISHED_LIST);
+  } catch (err: any) {
+    if (!err.status) err.status = 500;
+    next(err);
+  }
+}
 
 /**
  * !deprecated

@@ -177,6 +177,13 @@ export const updatePublishedListItemReq = z
           .regex(/^\d+$/, "Published qty must be a number")
           .transform((sr) => parseFloat(sr))
           .or(z.number()),
+        publish_date: z
+          .string({
+            required_error: "Pblish Date is required",
+          })
+          .datetime({
+            message: "Inavlid date",
+          }),
       })
       .required(),
   })
@@ -237,9 +244,80 @@ export const modifySingleTradeReq = z
 export const getOrderListReq = z.object({
   query: z.object({
     userId: z.string().optional(),
-    order_confirmed: z.enum(["Y", "N"]).optional(),
-  })
-})
+    order_confirmed: z.enum(["Y", "N", "R"]).optional(),
+  }),
+});
+
+export const updateTradeTimingsReq = z.object({
+  body: z.object({
+    startTime: z
+      .string()
+      .datetime()
+      .optional()
+      .default(
+        new Date(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDay(),
+          10,
+          0,
+          0,
+          0
+        ).toISOString()
+      ),
+    endTime: z
+      .string()
+      .datetime()
+      .optional()
+      .default(
+        new Date(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDay(),
+          10,
+          0,
+          0,
+          0
+        ).toISOString()
+      ),
+    offDays: z.array(
+      z.enum(
+        [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ],
+        {
+          invalid_type_error: "Not a valid day",
+        }
+      )
+    ),
+  }),
+});
+
+export const updatePendingOrderReq = z.object({
+  body: z.object({
+    order_id: z.number({
+      required_error: "Order id is required",
+    }),
+    confirm_remark: z
+      .string()
+      .nullish()
+      .transform((val) => val ?? ""),
+    order_remark: z
+      .string()
+      .nullish()
+      .transform((val) => val ?? ""),
+    order_confirmed: z.enum(["Y", "N", "R"], {
+      required_error: "Order approved status is required",
+      invalid_type_error: "Please provide a valid input",
+    }),
+  }),
+});
 
 export type AdminLoginRequest = z.infer<typeof adminLoginReq>;
 export type UpdateAuthorizationRequest = z.infer<typeof updateAuthorizationReq>;
@@ -258,4 +336,6 @@ export type UpdateSingleSaleRateRequest = z.infer<
 >;
 export type UpdateAllSaleRateRequest = z.infer<typeof updateAllSaleRateReq>;
 export type ModifySingleTradeRequest = z.infer<typeof modifySingleTradeReq>;
-export type OrderListRequest = z.infer<typeof getOrderListReq>
+export type OrderListRequest = z.infer<typeof getOrderListReq>;
+export type UpdateTradeTimingsRequest = z.infer<typeof updateTradeTimingsReq>;
+export type UpdatePendingOrderRequest = z.infer<typeof updatePendingOrderReq>;

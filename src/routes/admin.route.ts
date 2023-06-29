@@ -17,6 +17,11 @@ import {
   getAdminHome,
   updatePublishedListItem,
   getOrderList,
+  updateTradeTimings,
+  getTradeTimings,
+  updatePendingOrder,
+  updateAllTradeStatus,
+  updatePublishDates,
 } from "../controller/admin.controller";
 import {
   addUserReq,
@@ -30,6 +35,8 @@ import {
   updateSingleSaleRateReq,
   updatePublishedItemStatusReq,
   updatePublishedListItemReq,
+  updateTradeTimingsReq,
+  updatePendingOrderReq,
 } from "../validators/admin.validator";
 import { validate } from "../middlewares/validator.middleware";
 
@@ -69,18 +76,18 @@ router.patch(
 router.patch(
   "/published-list/status/all",
   validate(updateAllTradeReq),
-  updateAllTrade
+  updateAllTradeStatus
 );
-router.patch(
-  "/published-list/sale_rate",
-  validate(updateSingleSaleRateReq),
-  updateSingleSaleRate
-);
-router.patch(
-  "/published-list/sale_rate/all",
-  validate(updateAllSaleRateReq),
-  updateAllSaleRate
-);
+// router.patch(
+//   "/published-list/sale_rate",
+//   validate(updateSingleSaleRateReq),
+//   updateSingleSaleRate
+// );
+// router.patch(
+//   "/published-list/sale_rate/all",
+//   validate(updateAllSaleRateReq),
+//   updateAllSaleRate
+// );
 router.patch(
   "/published-list/update",
   validate(modifySingleTradeReq),
@@ -88,6 +95,20 @@ router.patch(
 );
 router.get("/published-list/status/all", getAllTradeStatus);
 
+router.patch("/publlished-list/publish-date", updatePublishDates);
+
 router.get("/order-list", getOrderList);
+router.patch(
+  "/pending-order",
+  validate(updatePendingOrderReq),
+  updatePendingOrder
+);
+
+router.get("/trade-time", getTradeTimings);
+router.patch(
+  "/trade-time",
+  validate(updateTradeTimingsReq),
+  updateTradeTimings
+);
 
 export default router;
