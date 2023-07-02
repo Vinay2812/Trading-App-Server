@@ -422,7 +422,7 @@ export async function postPublishList(
         mill_code: req.body.mill_code,
         mc: req.body.mc,
         item_code: req.body.item_code,
-        it: req.body.ic,cd 
+        it: req.body.ic,
         payment_to: req.body.payment_to,
         pt: req.body.pt,
         doac: req.body.tender_do,
